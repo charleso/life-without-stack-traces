@@ -573,13 +573,10 @@ EitherT[Future, Exception, A] = Future[Exception \/ A]
 ## EitherT
 
 ```scala
-def foo: EitherT[Future, Exception, User]
-def bar: EitherT[Future, Exception, List[Foo]]
-
 def load(id: Int): EitherT[Future, Exception List[Foo]] =
   for {
-    u &lt;- loadUser(id)
-    b &lt;- loadFoo(u2)
+    u &lt;- EitherT(loadUser(id))
+    b &lt;- EitherT(loadFoo(u2))
   } yield b
 
 load(id).run
