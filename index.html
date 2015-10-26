@@ -264,33 +264,7 @@ layout: false
 
 ## In The Beginning...
 
-There was the checked exception 
-
-
----
-
-## Hate
-
-- http://literatejava.com/exceptions/checked-exceptions-javas-biggest-mistake/
-- http://googletesting.blogspot.ru/2009/09/checked-exceptions-i-love-you-but-you.html
-
----
-
-## Bad APIs
-
-```java
-void bytesToString(byte[] bytes) {
-  ByteArrayOutputStream out = new ByteArrayOutputStream();
-  try {
-     out.write(bytes);
-     out.close()
-    return out.toSring();
-  } catch (IOException e) {
-     // This can never happen!
-     // Should I rethrow? Eat it? Print Error?
-   }
-}
-```
+There was the exception
 
 ---
 
@@ -379,7 +353,7 @@ template: inverse
 
 ---
 
-```
+```scala
 def load(id: Int): Future[List[Foo]] =
   for {
     u &lt;- loadUser(id)
@@ -387,21 +361,19 @@ def load(id: Int): Future[List[Foo]] =
   } yield b
 ```
 
-- TODO
-  - What does the stacktrace look like?
-  - Oh no!
-
----
-
-## TODO
-
 ```
-java.lang.NullPointerException
-  at com.example.MyService.loadFoo()
-  at org.scala.Future.flatMap()
-  at org.scala.Future.flatMap()
-  at org.scala.Future.flatMap()
-  at org.scala.Future.flatMap()
+Exception in thread "main" java.lang.NullPointerException
+	at Example.loadFoo(Example.scala:17)
+	at Example$$anonfun$bar$1.apply$mcI$sp(Example.scala:17)
+	at Example$$anonfun$bar$1.apply(Example.scala:17)
+	at Example$$anonfun$bar$1.apply(Example.scala:17)
+	at scala.concurrent.impl.Future$PromiseCompletingRunnable.liftedTree1$1(Future.scala:24)
+	at scala.concurrent.impl.Future$PromiseCompletingRunnable.run(Future.scala:24)
+	at scala.concurrent.impl.ExecutionContextImpl$AdaptedForkJoinTask.exec(ExecutionContextImpl.scala:121)
+	at scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)
+	at scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)
+	at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)
+	at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)
 ```
 
 ---
@@ -410,9 +382,11 @@ java.lang.NullPointerException
 
 ```scala
 case class UserNotFound(id: Int) extends Exception
+
 def load(id: Int): UserNotFound \/ User
 
 case class FooNotFound(id: Int) extends Exception
+
 def load2(id: Int): FooNotFound \/ List[Foo]
 ```
 
@@ -436,7 +410,6 @@ def load(id: Int): Exception \/ List[Foo] =
 template: question
 
 ## This is _not_ a Monad tutorial
-
 
 ---
 
@@ -486,7 +459,9 @@ case class LoadErrorFoo(e: FooNotFound) extends LoadError
 
 ---
 
-## Hmmm
+## TODO
+
+- TODO Add some context to one of the errors
 
 ```scala
 def load(id: Int): LoadError \/ List[Foo] =
@@ -541,8 +516,8 @@ Something failed with "/bob/1"
 ## What now?
 
 ```scala
-def foo: Future[Exception \/ User]
-def bar: Future[Exception \/ List[Foo]]
+def loadUser(id: Int): Future[UserError \/ User]
+def loadFoo(user: User): Future[FooError \/ List[Foo]]
 
 def load(id: Int): Future[Exception \/ List[Foo]] =
   for {
@@ -563,9 +538,7 @@ def load(id: Int): Future[Exception \/ List[Foo]] =
 ```
 case class EitherT[F[_], L, R](run: F[L \/ R])
 
-
-
-EitherT[Future, Exception, A] = Future[Exception \/ A]
+EitherT[Future, E, A] = Future[E \/ A]
 ```
 
 ---
@@ -573,7 +546,7 @@ EitherT[Future, Exception, A] = Future[Exception \/ A]
 ## EitherT
 
 ```scala
-def load(id: Int): EitherT[Future, Exception List[Foo]] =
+def load(id: Int): EitherT[LoadError, Exception List[Foo]] =
   for {
     u &lt;- EitherT(loadUser(id))
     b &lt;- EitherT(loadFoo(u2))
@@ -583,6 +556,21 @@ load(id).run
 > res0: Future[Exception \/ List[Foo]]
 ```
 
+---
+template: inverse
+
+## Detour: ADTs
+
+
+---
+
+###
+
+```scala
+sealed trait LoadError
+case class LoadErrorUser(e: UserNotFound) extends LoadError
+case class LoadErrorFoo(e: FooNotFound) extends LoadError
+```
 
 
 
@@ -594,10 +582,29 @@ load(id).run
 
 
 
-NOTES:
 
-Probably should use Task,
-the problem/confusing thing with Future is it has Throwable
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+# Takeaway
+
+---
+
+## Errors are data
 
 ---
 
