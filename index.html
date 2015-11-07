@@ -1055,6 +1055,8 @@ def load(id: Int): Future[LoadError \/ List[Foo]] =
 ## EitherT
 
 ```scala
+import scalaz._, Scalaz._
+
 case class EitherT[F[_], L, R](run: F[L \/ R])
 ```
 
