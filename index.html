@@ -723,6 +723,11 @@ def loadFoo(u: User): FooNotFound \/ List[Foo]
 ## Hmmm
 
 ```scala
+case class UserNotFound(id: Int)
+
+case class FooNotFound(user: User)
+
+
 def load(id: Int): ??? \/ List[Foo] =
   for {
     u &lt;- loadUser(id)
@@ -735,6 +740,11 @@ def load(id: Int): ??? \/ List[Foo] =
 ## Back where we started
 
 ```scala
+case class UserNotFound(id: Int) extends Exception
+
+case class FooNotFound(user: User) extends Exception
+
+
 def load(id: Int): Exception \/ List[Foo] =
   for {
     u &lt;- loadUser(id)
