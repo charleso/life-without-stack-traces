@@ -655,12 +655,6 @@ def bar =
 
 ---
 
-template: image
-
-<img src="http://cdn2-b.examiner.com/sites/default/files/styles/image_content_width/hash/3d/f3/beach-relax_0.jpg" />
-
----
-
 ## Partial Functions
 
 - Type signatures not enough
@@ -670,6 +664,12 @@ template: image
   - Functions that introduce new errors
     won't require code change 
 - Rely on stacktraces when they occur
+
+---
+
+template: image
+
+<img src="http://cdn2-b.examiner.com/sites/default/files/styles/image_content_width/hash/3d/f3/beach-relax_0.jpg" />
 
 ---
 
@@ -721,7 +721,7 @@ template: question
 
 ---
 
-## Simple example
+## Disjunction
 
 ```scala
 def loadUser(id: Int): Exception \/ User
