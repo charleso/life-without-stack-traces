@@ -514,18 +514,106 @@ trait Option[A] {
 
 ---
 
+## Is this partial?
+
+```scala
+
+
+
+
+def foo      (s: String, i: Int): String
+```
+
+---
+
+## What about now?
+
+```scala
+
+
+
+
+def substring(s: String, i: Int): String
+```
+---
+
+## What about now?
+
+```scala
+/**
+ * @throws IndexOutOfBoundsException
+ *   - if beginIndex is negative or larger than the length of this String object.
+ */
+def substring(s: String, i: Int): String
+```
+
+---
+
+## Is this partial?
+
+```scala
+def hello: List[String] =
+  foo("hello world")
+```
+
+---
+
+## Is this partial?
+
+```scala
+def hello: List[String] =
+  foo("hello world")
+```
+
+- Depends on `foo`
+
+---
+
+## Is this partial?
+
+```scala
+def hello: List[String] =
+  foo("hello world")
+```
+
+- Depends on `foo`
+- Which depends on `bar`
+
+---
+
+## Is this partial?
+
+```scala
+def hello: List[String] =
+  foo("hello world")
+```
+
+- Depends on `foo`
+- Which depends on `bar`
+- Which depends on...
+
+---
+
+template: image
+
+<img src="http://cdn2-b.examiner.com/sites/default/files/styles/image_content_width/hash/3d/f3/beach-relax_0.jpg" />
+
+---
+
 ## Partial Functions
 
 - Type signatures not enough
   - Harder to reason about
   - Harder to review
-- Rely on stacktraces
+- Rely on stacktraces when they occur
 
 ---
 
-template: inverse
+template: image
 
-## Errors as data
+<img src="https://s3.amazonaws.com/rapgenius/1361797568_f_fa0a8fc348.jpg" />
+
+## Imagine a world without errors
 
 ---
 
