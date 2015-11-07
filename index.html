@@ -1183,6 +1183,19 @@ You may wish to define B as +B instead. (SLS 4.5)
 
 ---
 
+## Variance
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">\/</span>[</span><span class="red"><span class="red">+</span>A</span>, +<span class="hljs-type">B</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EitherT</span>[</span><span class="hljs-type">F</span>[_], <span class="red">A</span>, <span class="hljs-type">B</span>](run: <span class="hljs-type">F</span>[\/[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>]])</div>
+</code></pre>
+
+<br/>
+
+Scalaz removed variance from EitherT (and friends) in 7.1
+
+https://groups.google.com/forum/#!msg/scalaz/-OEK9DhyB_Q/kyG5XyKmmL0J
+
+---
+
 ## Manual typing
 
 <pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadUser</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">UserError</span>, <span class="hljs-type">User</span>]</div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadFoo</span>(</span>u: <span class="hljs-type">User</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">FooError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">LoadError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id)\.leftMap[<span class="red">LoadError</span>](<span class="hljs-type">LoadErrorUser</span>(_))</div><div class="remark-code-line">    b &lt;- loadFoo(u)\.leftMap[<span class="red">LoadError</span>](<span class="hljs-type">LoadErrorFoo</span>(_))</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
