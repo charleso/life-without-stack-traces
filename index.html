@@ -805,10 +805,10 @@ load(id) match {
     e match {
 
       case LoadErrorUser(u) =>
-        loadSomethingElse(u)
+        ...
 
       case LoadErrorFoo(f)
-         AnotherError(f).left
+        ...
     }
 }
 ```
