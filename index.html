@@ -1073,11 +1073,8 @@ You may wish to define B as +B instead. (SLS 4.5)
 
 ## Variance
 
-```scala
-sealed trait \/[+A, +B]
-
-case class EitherT[F[_], A, B](run: F[\/[A, B]])
-```
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">\/</span>[</span><span class="red">+A</span>, +<span class="hljs-type">B</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EitherT</span>[</span><span class="hljs-type">F</span>[_], <span class="red">A</span>, <span class="hljs-type">B</span>](run: <span class="hljs-type">F</span>[\/[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>]])</div>
+</code></pre>
 
 ---
 
@@ -1088,40 +1085,10 @@ case class EitherT[F[_], A, B](run: F[\/[A, B]])
 
 ---
 
-## Our error type
-
-```scala
-sealed trait LoadError
-
-case class LoadErrorUser(e: UserNotFound)
-  extends LoadError
-
-case class LoadErrorFoo(e: FooNotFound)
-  extends LoadError
-```
-
----
-
 ## Function "constructors"
 
-```scala
-sealed trait LoadError
-
-case class LoadErrorUser(e: UserNotFound)
-  extends LoadError
-
-case class LoadErrorFoo(e: FooNotFound)
-  extends LoadError
-
-object LoadError {
-   
-   def user(e: UserNotFound): LoadError =
-     LoadErrorUser(e)
-
-   def foo(e: FooNotFound): LoadError =
-     LoadErrorFoo(e)
-}
-```
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">LoadError</span></span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorUser</span>(</span>e: <span class="hljs-type">UserNotFound</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorFoo</span>(</span>e: <span class="hljs-type">FooNotFound</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">LoadError</span> {</span></div><div class="remark-code-line"></div><div class="remark-code-line">   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">user</span>(</span>e: <span class="hljs-type">UserNotFound</span>): <span class="red">LoadError</span> =</div><div class="remark-code-line">     <span class="hljs-type">LoadErrorUser</span>(e)</div><div class="remark-code-line"></div><div class="remark-code-line">   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span>(</span>e: <span class="hljs-type">FooNotFound</span>): <span class="red">LoadError</span> =</div><div class="remark-code-line">     <span class="hljs-type">LoadErrorFoo</span>(e)</div><div class="remark-code-line">}</div>
+</code></pre>
 
 ---
 
