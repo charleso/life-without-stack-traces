@@ -1065,6 +1065,11 @@ case class EitherT[F[_], L, R](run: F[L \/ R])
 ## Example
 
 ```scala
+import scalaz._, Scalaz._
+
+case class EitherT[F[_], L, R](run: F[L \/ R])
+
+
 def foo: Future[Exception \/ User] =
   ...
 ```
@@ -1074,6 +1079,11 @@ def foo: Future[Exception \/ User] =
 ## Example
 
 ```scala
+import scalaz._, Scalaz._
+
+case class EitherT[F[_], L, R](run: F[L \/ R])
+
+
 def foo: Future[Exception \/ User] =
   ...
 
@@ -1086,6 +1096,11 @@ def bar: EitherT[Future, Exception, User] =
 ## Example
 
 ```scala
+import scalaz._, Scalaz._
+
+case class EitherT[F[_], L, R](run: F[L \/ R])
+
+
 def foo: Future[Exception \/ User] =
   ...
 
