@@ -1089,7 +1089,7 @@ You may wish to define B as +B instead. (SLS 4.5)
 
 ## Variance
 
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">\/</span>[</span><span class="red">+A</span>, +<span class="hljs-type">B</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EitherT</span>[</span><span class="hljs-type">F</span>[_], <span class="red">A</span>, <span class="hljs-type">B</span>](run: <span class="hljs-type">F</span>[\/[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>]])</div>
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">\/</span>[</span><span class="red"><span class="red">+</span>A</span>, +<span class="hljs-type">B</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EitherT</span>[</span><span class="hljs-type">F</span>[_], <span class="red">A</span>, <span class="hljs-type">B</span>](run: <span class="hljs-type">F</span>[\/[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>]])</div>
 </code></pre>
 
 ---
