@@ -610,10 +610,20 @@ load(id) match {
 ```scala
 case class UserNotFound(id: Int)
 
-def loadUser(id: Int): UserNotFound \/ User
+case class FooNotFound(user: User)
+```
 
+---
+
+## Types Are Good
+
+```scala
+case class UserNotFound(id: Int)
 
 case class FooNotFound(user: User)
+
+
+def loadUser(id: Int): UserNotFound \/ User
 
 def loadFoo(u: User): FooNotFound \/ List[Foo]
 ```
@@ -654,6 +664,17 @@ case class LoadErrorUser(e: UserNotFound)
 
 case class LoadErrorFoo(e: FooNotFound)
   extends LoadError
+```
+
+---
+
+## Left Map
+
+```scala
+trait \/[L, R] {
+
+  def leftMap(f: L => L2): L2 \/ R
+}
 ```
 
 ---
@@ -736,8 +757,16 @@ def loadErrorStatusCode(e: LoadError): HttpStatus =
 }
 ```
 
+---
 
+## Errors as data
 
+- Types as documentation
+- Force consumers to deal with them
+- Can have different failure cases
+  depending on the consumer
+- Contain all the information you need to debug
+  - "Logical stacktrace"
 
 
 
@@ -817,12 +846,38 @@ case class EitherT[F[_], L, R](run: F[L \/ R])
 
 ---
 
-## EitherT
+## Example
 
 ```scala
-case class EitherT[F[_], L, R](run: F[L \/ R])
+def foo: Future[Exception \/ User] =
+  ...
+```
 
-EitherT[Future, L, R]
+---
+
+## Example
+
+```scala
+def foo: Future[Exception \/ User] =
+  ...
+
+def bar: EitherT[Future, Exception, User] =
+  EitherT(foo)
+```
+
+---
+
+## Example
+
+```scala
+def foo: Future[Exception \/ User] =
+  ...
+
+def bar: EitherT[Future, Exception, User] =
+  EitherT(foo)
+
+def baz: Future[Exception \/ User] =
+  bar.run
 ```
 
 ---
@@ -830,8 +885,8 @@ EitherT[Future, L, R]
 ## From before
 
 ```scala
-def loadUser(id: Int): Exception \/ User
-def loadFoo(u: User): Exception \/ List[Foo]
+def loadUser(id: Int): UserError \/ User
+def loadFoo(u: User): FooError \/ List[Foo]
 
 def load(id: Int): LoadError \/ List[Foo] =
   for {
@@ -839,6 +894,7 @@ def load(id: Int): LoadError \/ List[Foo] =
     b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
   } yield b
 ```
+
 ---
 
 ## EitherT + Future
@@ -1094,6 +1150,7 @@ template: question
   - Chapter 4: “Handling errors without exceptions”
 - _Designing Fail Fast Error Handling_ by Noel Welsh
   - http://underscore.io/blog/posts/2015/02/23/designing-fail-fast-error-handling.html
+- https://github.com/charleso/life-without-stack-traces
 
     </textarea>
     <link rel="stylesheet" href="js/styles/idea.css">
