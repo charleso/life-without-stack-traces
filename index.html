@@ -620,12 +620,12 @@ template: question
  * @throws BadException
  *
  */
-def foo(s: String): String
+def foo: Unit
 
 
 def bar =
   try {
-    foo("hello")
+    foo
   } catch {
     e: BadException =>
       ...
@@ -641,12 +641,12 @@ def bar =
  * @throws BadException
  * @throws UglyException
  */
-def foo(s: String): String
+def foo: Unit
 
 
 def bar =
   try {
-    foo("hello")
+    foo
   } catch {
     e: BadException =>
       ...
