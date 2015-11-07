@@ -531,7 +531,7 @@ template: inverse
 
 ## Either
 
-```
+```scala
 def foo: Either[Exception, User]
 ```
 
@@ -539,7 +539,7 @@ def foo: Either[Exception, User]
 
 ## Either Infix
 
-```
+```scala
 def foo: Exception Either User
 ```
 
@@ -554,7 +554,7 @@ template: question
 
 ## Disjunction
 
-```
+```scala
 def foo: \/[Exception, User]
 ```
 
@@ -562,7 +562,7 @@ def foo: \/[Exception, User]
 
 ## Disjunction Infix
 
-```
+```scala
 def foo: Exception \/ User
 ```
 
@@ -642,7 +642,7 @@ def load(id: Int): ??? \/ List[Foo] =
 
 ---
 
-## Hmmmmmm
+## Back where we started
 
 ```scala
 def load(id: Int): Exception \/ List[Foo] =
@@ -654,7 +654,7 @@ def load(id: Int): Exception \/ List[Foo] =
 
 ---
 
-## ADT
+## Data types are cheap
 
 ```scala
 sealed trait LoadError
@@ -673,7 +673,7 @@ case class LoadErrorFoo(e: FooNotFound)
 ```scala
 trait \/[L, R] {
 
-  def leftMap(f: L => L2): L2 \/ R
+  def leftMap[L2](f: L => L2): L2 \/ R
 }
 ```
 
@@ -707,7 +707,7 @@ load(id)
 
 ---
 
-## ...we have to do something
+## ...we have to do _something_
 
 ```scala
 load(id) match {
