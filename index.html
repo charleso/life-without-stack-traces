@@ -759,6 +759,45 @@ def loadErrorStatusCode(e: LoadError): HttpStatus =
 
 ---
 
+## Please sir
+
+```scala
+sealed trait LoadError
+
+case class LoadErrorUser(e: UserNotFound)
+  extends LoadError
+
+case class LoadErrorFoo(e: FooNotFound)
+  extends LoadError
+
+case class LoadErrorBar(e: BarNotFound)
+  extends LoadError
+```
+
+---
+
+## Compile warnings
+
+<pre><code class="remark-code"><div><span style="color: #DDDD00">[warn]</span> match may not be exhaustive.</div><div><span style="color: #DDDD00">[warn]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: #DDDD00">[warn]</span>     load(1) match {</div><div><span style="color: #DDDD00">[warn]</span>         ^</div>
+</code></pre>
+
+---
+
+## Warnings as errors
+
+```scala
+scalacOptions in Compile ++= Seq("-Xfatal-warnings")
+```
+
+---
+
+## Compile warnings
+
+<pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: red">[error]</span>     load(1) match {</div><div><span style="color: red">[error]</span>         ^</div>
+</code></pre>     
+
+---
+
 ## Errors as data
 
 - Types as documentation
@@ -767,7 +806,8 @@ def loadErrorStatusCode(e: LoadError): HttpStatus =
   depending on the consumer
 - Contain all the information you need to debug
   - "Logical stacktrace"
-
+- Future proof
+  - Will fail when error cases change
 
 
 
