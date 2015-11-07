@@ -607,6 +607,54 @@ def hello: List[String] =
 
 ---
 
+template: question
+
+## Future Proof
+
+---
+
+## Today
+
+```scala
+/**
+ * @throws BadException
+ *
+ */
+def foo(s: String): String
+
+
+def bar =
+  try {
+    foo("hello")
+  } catch {
+    e: BadException =>
+      ...
+  }
+```
+
+---
+
+## Tomorrow
+
+```scala
+/**
+ * @throws BadException
+ * @throws UglyException
+ */
+def foo(s: String): String
+
+
+def bar =
+  try {
+    foo("hello")
+  } catch {
+    e: BadException =>
+      ...
+  }
+```
+
+---
+
 template: image
 
 <img src="http://cdn2-b.examiner.com/sites/default/files/styles/image_content_width/hash/3d/f3/beach-relax_0.jpg" />
@@ -618,6 +666,9 @@ template: image
 - Type signatures not enough
   - Harder to reason about
   - Harder to review
+- Not future proof
+  - Functions that introduce new errors
+    won't require code change 
 - Rely on stacktraces when they occur
 
 ---
