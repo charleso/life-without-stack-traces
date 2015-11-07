@@ -849,6 +849,12 @@ def loadErrorStatusCode(e: LoadError): HttpStatus =
 
 ---
 
+template: question
+
+# Future proof
+
+---
+
 ## Please sir
 
 ```scala
@@ -885,6 +891,34 @@ scalacOptions in Compile ++= Seq("-Xfatal-warnings")
 
 <pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: red">[error]</span>     load(1) match {</div><div><span style="color: red">[error]</span>         ^</div>
 </code></pre>     
+
+---
+
+template: question
+
+# Add more context
+
+---
+
+## Previously
+
+```scala
+case class LoadErrorFoo(e: FooNotFound)
+  extends LoadError
+
+def load(id: Int): LoadError \/ List[Foo] =
+  for {
+    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
+    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+  } yield b
+```
+
+---
+
+## Add context
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorFoo</span>(</span>e: <span class="hljs-type">FooNotFound</span>, <span class="red"><span class="red">c:</span> Context</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>, <span class="red"><span class="red">c:</span> Context</span>): <span class="hljs-type">LoadError</span> \/ <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).leftMap(<span class="hljs-type">LoadErrorUser</span>(_))</div><div class="remark-code-line">    b &lt;- loadFoo(u).leftMap(<span class="hljs-type">LoadErrorFoo</span>(_, <span class="red"><span class="red">c</span></span>))</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
+</code></pre>
 
 ---
 
