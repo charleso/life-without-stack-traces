@@ -178,6 +178,20 @@
       .remark-slide-number {
         display: none;
       }
+      .trace-example {
+        margin-top: 12px;
+      }
+      .trace-example .trace-useful {
+        color: red;
+      }
+      .trace-example pre {
+        font-size: 12px;
+        padding: 0px;
+        margin: 0px;
+      }
+      .red span {
+        color: red;
+      }
     </style>
   </head>
   <body>
@@ -260,30 +274,34 @@ template: image
 
 
 ---
+
+template: image
+
+<img src="http://www.cronulla.anglican.asn.au/wp-content/uploads/in-beginning.jpg">
+
+---
+
 layout: false
 
-## In The Beginning...
+## Exception
 
-There was the exception
-
----
-
-## Tea Leaves
-
-```
+```java
 java.lang.NullPointerException
-  at com.example.MyService.list()
-  at com.example.MyController.list()
+  at com.example.MyService.list(MyService.java:23)
+  at com.example.MyController.list(MyController.java:11)
 ```
+
 ---
 
+template: question
+
+## What it really looks like...
+
 ---
 
-## In Reality
-
-```
+<pre style="font-size: 12px;">
 java.lang.NullPointerException
-  at com.example.MyService.list()
+  at com.example.MyService.list(MyService.java:23)
   at net.sf.cglib.proxy.MethodProxy.invoke()
   at org.springframework.aop.framework.Cglib2AopProxy$CglibMethodInvocation.invokeJoinpoint()
   at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()
@@ -304,47 +322,74 @@ java.lang.NullPointerException
   at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke()
   at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()
   at org.springframework.aop.framework.Cglib2AopProxy$DynamicAdvisedInterceptor.intercept()
-  at com.example.MyController.list()
-```
----
-
-## Exceptions don't compose
-
-- TODO BETTER EXAMPLE
-- http://benjiweber.co.uk/blog/2014/03/22/checked-exceptions-and-streams/
-
-```java
-void duplicatesShortStrings(input: String)
-  throws CheckedException
-
-asList("foo", "bar", "baz", "booooo")
-  .stream()
-  .map(Example::duplicatesShortStrings)
-  .collect(Collectors.toList());
-```
-
----
-
-template: question
-
-## Partial Functions
+  at com.example.MyController.list(MyController.java:11)
+  at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)
+  at com.example.myproject.ExceptionHandlerFilter.doFilter(ExceptionHandlerFilter.java:28)
+  at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)
+  at com.example.myproject.OutputBufferFilter.doFilter(OutputBufferFilter.java:33)
+  at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)
+  at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:388)
+  at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+  at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:182)
+  at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:765)
+  at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:418)
+  at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+  at org.mortbay.jetty.Server.handle(Server.java:326)
+  at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:542)
+  at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:943)
+  at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:756)
+  at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:218)
+  at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:404)
+  at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)
+  at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582)
+</pre>
 
 ---
 
-## Just say no
-
-```scala
-def safeFunction(): String = {
-  val v: Option[String] = ...
-
-  // This should never happen...
-  v.get
-}
-```
-
-- BOOM!
-- TODO Show what that looks like
-
+<div class="trace-example">
+<pre>java.lang.NullPointerException</pre>
+<pre class="trace-useful">  at com.example.MyService.list(MyService.java:23)</pre>
+<pre>  at net.sf.cglib.proxy.MethodProxy.invoke()</pre>
+<pre>  at org.springframework.aop.framework.Cglib2AopProxy$CglibMethodInvocation.invokeJoinpoint()</pre>
+<pre>  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()</pre>
+<pre>  at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed()</pre>
+<pre>  at com.blogspot.nurkiewicz.LoggingAspect.logging()</pre>
+<pre>  at sun.reflect.NativeMethodAccessorImpl.invoke0()</pre>
+<pre>  at sun.reflect.NativeMethodAccessorImpl.invoke()</pre>
+<pre>  at sun.reflect.DelegatingMethodAccessorImpl.invoke()</pre>
+<pre>  at java.lang.reflect.Method.invoke()</pre>
+<pre>  at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs()</pre>
+<pre>  at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod()</pre>
+<pre>  at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke()</pre>
+<pre>  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()</pre>
+<pre>  at org.springframework.aop.interceptor.AbstractTraceInterceptor.invoke()</pre>
+<pre>  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()</pre>
+<pre>  at org.springframework.transaction.interceptor.TransactionInterceptor.invoke()</pre>
+<pre>  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()</pre>
+<pre>  at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke()</pre>
+<pre>  at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed()</pre>
+<pre>  at org.springframework.aop.framework.Cglib2AopProxy$DynamicAdvisedInterceptor.intercept()</pre>
+<pre class="trace-useful">  at com.example.MyController.list(MyController.java:11)</pre>
+<pre>  at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)</pre>
+<pre>  at com.example.myproject.ExceptionHandlerFilter.doFilter(ExceptionHandlerFilter.java:28)</pre>
+<pre>  at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)</pre>
+<pre>  at com.example.myproject.OutputBufferFilter.doFilter(OutputBufferFilter.java:33)</pre>
+<pre>  at org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)</pre>
+<pre>  at org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:388)</pre>
+<pre>  at org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)</pre>
+<pre>  at org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:182)</pre>
+<pre>  at org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:765)</pre>
+<pre>  at org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:418)</pre>
+<pre>  at org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)</pre>
+<pre>  at org.mortbay.jetty.Server.handle(Server.java:326)</pre>
+<pre>  at org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:542)</pre>
+<pre>  at org.mortbay.jetty.HttpConnection$RequestHandler.content(HttpConnection.java:943)</pre>
+<pre>  at org.mortbay.jetty.HttpParser.parseNext(HttpParser.java:756)</pre>
+<pre>  at org.mortbay.jetty.HttpParser.parseAvailable(HttpParser.java:218)</pre>
+<pre>  at org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:404)</pre>
+<pre>  at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)</pre>
+<pre>  at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582)    </pre>
+</div>
 ---
 
 template: inverse
@@ -352,6 +397,8 @@ template: inverse
 # FP
 
 ---
+
+## FP is awesome
 
 ```scala
 def load(id: Int): Future[List[Foo]] =
@@ -361,7 +408,21 @@ def load(id: Int): Future[List[Foo]] =
   } yield b
 ```
 
+---
+
+## Boom
+
+```scala
+def load(id: Int): Future[List[Foo]] =
+  for {
+    u &lt;- loadUser(id)
+    b &lt;- loadFoo(u)
+  } yield b
 ```
+
+<br/>
+
+<pre style="font-size: 13px;">
 Exception in thread "main" java.lang.NullPointerException
 	at Example.loadFoo(Example.scala:17)
 	at Example$$anonfun$bar$1.apply$mcI$sp(Example.scala:17)
@@ -374,20 +435,135 @@ Exception in thread "main" java.lang.NullPointerException
 	at scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)
 	at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)
 	at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)
+</pre>
+
+---
+
+template: question
+
+## Partial Functions
+
+---
+
+template: question
+
+## Partial Functions
+
+### "Functions that throw exceptions"
+
+---
+
+## [scala.PartialFunction](http://www.scala-lang.org/api/current/index.html#scala.PartialFunction)
+
+```scala
+trait PartialFunction[A, B] extends Function[A, B] {
+  def isDefinedAt(x: A): Boolean
+}
 ```
 
 ---
 
-## TODO TITLE
+template: question
+
+## Shall we play a game?
+
+---
+
+## What does this do?
 
 ```scala
-case class UserNotFound(id: Int) extends Exception
+trait Foo[A] {
 
-def load(id: Int): UserNotFound \/ User
 
-case class FooNotFound(id: Int) extends Exception
 
-def load2(id: Int): FooNotFound \/ List[Foo]
+
+
+  def hello: A
+}
+```
+
+---
+
+## Looks more familiar
+
+```scala
+trait Option[A] {
+
+
+
+
+
+  def get: A
+}
+```
+
+---
+
+## Game over
+
+```scala
+trait Option[A] {
+
+  /** Returns the option's value.
+   *  @note The option must be nonEmpty.
+   *  @throws java.util.NoSuchElementException
+   */
+  def get: A
+}
+```
+
+---
+
+## Partial Functions
+
+- Type signatures not enough
+  - Harder to reason about
+  - Harder to review
+- Rely on stacktraces
+
+---
+
+template: inverse
+
+## Errors as data
+
+---
+
+## Either
+
+```
+def foo: Either[Exception, User]
+```
+
+---
+
+## Either Infix
+
+```
+def foo: Exception Either User
+```
+
+---
+
+template: question
+
+## Disjunction
+## \/
+
+---
+
+## Disjunction
+
+```
+def foo: \/[Exception, User]
+```
+
+---
+
+## Disjunction Infix
+
+```
+def foo: Exception \/ User
 ```
 
 ---
@@ -395,8 +571,10 @@ def load2(id: Int): FooNotFound \/ List[Foo]
 ## Simple example
 
 ```scala
-def foo: Exception \/ User
-def bar: Exception \/ List[Foo]
+def loadUser(id: Int): Exception \/ User
+
+def loadFoo(u: User): Exception \/ List[Foo]
+
 
 def load(id: Int): Exception \/ List[Foo] =
   for {
@@ -417,9 +595,11 @@ template: question
 
 ```scala
 load(id) match {
-  case -\/(e) =>
+
+  case Left(e) =>
+
     // What do we know about e?!?
-    println("Something bad happend: " + e.toString)
+    println("Something bad happened: " + e.toString)
 }
 ```
 
@@ -429,10 +609,13 @@ load(id) match {
 
 ```scala
 case class UserNotFound(id: Int)
-def load(id: Int): UserNotFound \/ User
 
-case class FooNotFound(id: Int)
-def load2(id: Int): FooNotFound \/ List[Foo]
+def loadUser(id: Int): UserNotFound \/ User
+
+
+case class FooNotFound(user: User)
+
+def loadFoo(u: User): FooNotFound \/ List[Foo]
 ```
 
 ---
@@ -449,19 +632,33 @@ def load(id: Int): ??? \/ List[Foo] =
 
 ---
 
-## ADT
+## Hmmmmmm
 
 ```scala
-sealed trait LoadError
-case class LoadErrorUser(e: UserNotFound) extends LoadError
-case class LoadErrorFoo(e: FooNotFound) extends LoadError
+def load(id: Int): Exception \/ List[Foo] =
+  for {
+    u &lt;- loadUser(id)
+    b &lt;- loadFoo(u)
+  } yield b
 ```
 
 ---
 
-## TODO
+## ADT
 
-- TODO Add some context to one of the errors
+```scala
+sealed trait LoadError
+
+case class LoadErrorUser(e: UserNotFound)
+  extends LoadError
+
+case class LoadErrorFoo(e: FooNotFound)
+  extends LoadError
+```
+
+---
+
+## Left Map
 
 ```scala
 def load(id: Int): LoadError \/ List[Foo] =
@@ -473,15 +670,31 @@ def load(id: Int): LoadError \/ List[Foo] =
 
 ---
 
-## Catch
+## Types FTW
+
+```scala
+def load(id: Int): LoadError \/ List[Foo]
+```
+
+---
+
+## Now when we call...
+
+```scala
+load(id)
+```
+
+---
+
+## ...we have to do something
 
 ```scala
 load(id) match {
-  case -\/(e) =>
+  case Left(e) =>
     e match {
 
       case LoadErrorUser(u) =>
-        loadSomethingElse(e)
+        loadSomethingElse(u)
 
       case LoadErrorFoo(f)
          AnotherError(f).left
@@ -491,12 +704,36 @@ load(id) match {
 
 ---
 
-## "Logical" stack trace
+## Print details
 
+```scala
+def render(e: LoadError): String =
+
+    e match {
+
+      case LoadErrorUser(u) =>
+        s"Error loading user: ${u.render}"
+
+      case LoadErrorFoo(f)
+         s"Error loading foo: ${f.render}"
+}
 ```
-Something failed with "/bob/1"
-  - Load failed with:
-    - User not found: "bob"
+
+---
+
+## Exit status
+
+```scala
+def loadErrorStatusCode(e: LoadError): HttpStatus =
+
+    e match {
+
+      case LoadErrorUser(_) =>
+         notFound404
+
+      case LoadErrorFoo(_)
+         notFound400
+}
 ```
 
 
@@ -510,6 +747,14 @@ Something failed with "/bob/1"
 
 
 
+
+
+---
+template: image
+
+<img height="100%" src="http://previews.123rf.com/images/endhals/endhals1105/endhals110500113/9547427-Teddy-Bear-buckled-with-safety-belt-in-a-car-Stock-Photo-seat.jpg" />
+
+## Buckle up
 
 ---
 
@@ -517,15 +762,24 @@ Something failed with "/bob/1"
 
 ```scala
 def loadUser(id: Int): Future[UserError \/ User]
-def loadFoo(user: User): Future[FooError \/ List[Foo]]
+def loadFoo(u: User): Future[FooError \/ List[Foo]]
+```
 
-def load(id: Int): Future[Exception \/ List[Foo]] =
+---
+
+## What now?
+
+```scala
+def loadUser(id: Int): Future[UserError \/ User]
+def loadFoo(u: User): Future[FooError \/ List[Foo]]
+
+def load(id: Int): Future[LoadError \/ List[Foo]] =
   for {
     u &lt;- loadUser(id)
     b &lt;- u match {
-      case -\/(e) =>
-        Future.ok(-\/(e))
-      case \/-(u2) =>
+      case Left(e) =>
+        Future.ok(e.left)
+      case Right(u2) =>
         loadFoo(u2)
     }
   } yield b
@@ -533,12 +787,24 @@ def load(id: Int): Future[Exception \/ List[Foo]] =
 
 ---
 
-## EitherT
+template: question
 
+## This is _not_ a Monad Transformers tutorial
+
+---
+
+## Future + \/
+
+```scala
+                               Future[L \/ R]
 ```
-case class EitherT[F[_], L, R](run: F[L \/ R])
 
-EitherT[Future, E, A] = Future[E \/ A]
+---
+
+## Not just Future
+
+```scala
+                   F[_]             F[L \/ R]
 ```
 
 ---
@@ -546,31 +812,235 @@ EitherT[Future, E, A] = Future[E \/ A]
 ## EitherT
 
 ```scala
-def load(id: Int): EitherT[LoadError, Exception List[Foo]] =
-  for {
-    u &lt;- EitherT(loadUser(id))
-    b &lt;- EitherT(loadFoo(u2))
-  } yield b
-
-load(id).run
-> res0: Future[Exception \/ List[Foo]]
+case class EitherT[F[_], L, R](run: F[L \/ R])
 ```
 
 ---
-template: inverse
 
-## Detour: ADTs
+## EitherT
 
+```scala
+case class EitherT[F[_], L, R](run: F[L \/ R])
+
+EitherT[Future, L, R]
+```
 
 ---
 
-###
+## From before
+
+```scala
+def loadUser(id: Int): Exception \/ User
+def loadFoo(u: User): Exception \/ List[Foo]
+
+def load(id: Int): LoadError \/ List[Foo] =
+  for {
+    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
+    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+  } yield b
+```
+---
+
+## EitherT + Future
+
+```scala
+def loadUser(id: Int): EitherT[Future, UserError, User]
+def loadFoo(u: User): EitherT[Future, FooError, List[Foo]]
+
+def load(id: Int): EitherT[Future, LoadError, List[Foo]] =
+  for {
+    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
+    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+  } yield b
+```
+
+---
+
+## Wat
+
+```scala
+def loadUser(id: Int): EitherT[Future, UserError, User]
+def loadFoo(u: User): EitherT[Future, FooError, List[Foo]]
+
+def load(id: Int): EitherT[Future, LoadError, List[Foo]] =
+  for {
+    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
+    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+  } yield b
+```
+
+<pre style="color: red">
+Error:(46, 9) type mismatch;
+ found   : scalaz.EitherT[scala.concurrent.Future,EitherTExample.LoadErrorUser,Nothing]
+ required: scalaz.EitherT[scala.concurrent.Future,EitherTExample.LoadError,List[EitherTExample.Foo]]
+Note: EitherTExample.LoadErrorUser <: EitherTExample.LoadError, but class EitherT is invariant in type A.
+You may wish to define A as +A instead. (SLS 4.5)
+Note: Nothing <: List[EitherTExample.Foo], but class EitherT is invariant in type B.
+You may wish to define B as +B instead. (SLS 4.5)
+ u <- EitherT(loadUser(id)).leftMap(LoadErrorUser)
+        ^
+</pre>
+
+---
+template: image
+
+<img height="100%" src="http://www.poker.co.uk/wp-content/uploads/2013/09/detour-620x400.jpg" />
+
+## ADTs
+
+---
+
+## Types vs Constructors
+
+```scala
+sealed trait Option[A]
+
+case class Some(a: A) extends Option[A]
+
+case object None extends Option[Nothing]
+```
+
+---
+
+## Constructors
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Option</span>[</span><span class="hljs-type">A</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="red">Some</span>(</span>a: <span class="hljs-type">A</span>) <span class="hljs-keyword">extends</span> <span class="hljs-type">Option</span>[<span class="hljs-type">A</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="red">None</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span></span> <span class="hljs-title">Option</span>[</span><span class="hljs-type">Nothing</span>]</div>
+</code></pre>
+
+---
+
+## Types
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="red">Option</span>[</span><span class="hljs-type">A</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Some</span>(</span>a: <span class="hljs-type">A</span>) <span class="hljs-keyword">extends</span> <span class="red">Option</span>[<span class="hljs-type">A</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">None</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span></span> <span class="red">Option</span>[</span><span class="hljs-type">Nothing</span>]</div>
+</code></pre>
+---
+
+## Does this make sense?
+
+```scala
+def hello: Some[String] =
+  Some("hello")
+```
+
+---
+
+## This is what we meant
+
+```scala
+def hello: Option[String] =
+  Some("hello")
+```
+
+---
+
+## But this is what happens
+
+```scala
+def hellos: ??? =
+  List(Some("hello"))
+```
+
+---
+
+## But this is what happens
+
+```scala
+def hellos: List[Some[String]] =
+  List(Some("hello"))
+```
+
+---
+
+## ADT
+
+```scala
+sealed trait Option[A]
+
+case class Some(a: A) extends Option[A]
+
+case object None extends Option[Nothing]
+```
+
+---
+
+## Functions
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Option</span>[</span><span class="hljs-type">A</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Some</span>(</span>a: <span class="hljs-type">A</span>) <span class="hljs-keyword">extends</span> <span class="hljs-type">Option</span>[<span class="hljs-type">A</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">None</span> <span class="hljs-keyword"><span class="hljs-keyword">extends</span></span> <span class="hljs-title">Option</span>[</span><span class="hljs-type">Nothing</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Option</span> {</span></div><div class="remark-code-line"></div><div class="remark-code-line">   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">some</span>[</span><span class="hljs-type">A</span>](a: <span class="hljs-type">A</span>): <span class="red">Option</span>[<span class="hljs-type">A</span>] =</div><div class="remark-code-line">     <span class="hljs-type">Some</span>(a)</div><div class="remark-code-line"></div><div class="remark-code-line">   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">none</span>[</span><span class="hljs-type">A</span>]: <span class="red">Option</span>[<span class="hljs-type">A</span>] =</div><div class="remark-code-line">     <span class="hljs-type">None</span></div><div class="remark-code-line">}</div>
+</code></pre>
+
+---
+
+## Better
+
+```scala
+
+
+def hellos: List[Option[String]] =
+  List(Option.some("hello"))
+```
+
+---
+
+## Scalaz
+
+```scala
+import scalaz._, Scalaz._
+
+def hellos: List[Option[String]] =
+  List("hello".some)
+```
+
+---
+
+## Our error type
 
 ```scala
 sealed trait LoadError
-case class LoadErrorUser(e: UserNotFound) extends LoadError
-case class LoadErrorFoo(e: FooNotFound) extends LoadError
+
+case class LoadErrorUser(e: UserNotFound)
+  extends LoadError
+
+case class LoadErrorFoo(e: FooNotFound)
+  extends LoadError
 ```
+
+---
+
+## Function "constructors"
+
+```scala
+sealed trait LoadError
+
+case class LoadErrorUser(e: UserNotFound)
+  extends LoadError
+
+case class LoadErrorFoo(e: FooNotFound)
+  extends LoadError
+
+object LoadError {
+   
+   def user(e: UserNotFound): LoadError =
+     LoadErrorUser(e)
+
+   def foo(e: FooNotFound): LoadError =
+     LoadErrorFoo(e)
+}
+```
+
+---
+
+## Doesn't compile
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadUser</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">UserError</span>, <span class="hljs-type">User</span>]</div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadFoo</span>(</span>u: <span class="hljs-type">User</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">FooError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">LoadError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).leftMap(<span style="color: red">LoadErrorUser(_)</span>)</div><div class="remark-code-line">    b &lt;- loadFoo(u).leftMap(<span style="color: red">LoadErrorFoo(_)</span>)</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
+</code></pre>
+
+---
+
+## Fixed
+
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadUser</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">UserError</span>, <span class="hljs-type">User</span>]</div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadFoo</span>(</span>u: <span class="hljs-type">User</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">FooError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">LoadError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).leftMap(<span style="color: red">LoadError.user(_)</span>)</div><div class="remark-code-line">    b &lt;- loadFoo(u).leftMap(<span style="color: red">LoadError.foo(_)</span>)</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
+</code></pre>
+
 
 
 
@@ -599,12 +1069,22 @@ case class LoadErrorFoo(e: FooNotFound) extends LoadError
 
 
 ---
+
+template: inverse
 
 # Takeaway
 
 ---
 
-## Errors are data
+template: question
+
+## Partial Functions are bad
+
+---
+
+template: question
+
+## Errors as data
 
 ---
 
