@@ -624,16 +624,33 @@ template: image
 ## Either
 
 ```scala
-def foo: Either[Exception, User]
+def loadUser(id: Int): Either[Exception, User]
+
+def loadFoo(u: User): Either[Exception, List[Foo]]
 ```
 
 ---
 
-## Either Infix
+## Either in action
 
 ```scala
-def foo: Exception Either User
+def loadUser(id: Int): Either[Exception, User]
+
+def loadFoo(u: User): Either[Exception, List[Foo]]
+
+
+def load(id: Int): Either[Exception, List[Foo]] =
+  for {
+    u &lt;- loadUser(id).right
+    b &lt;- loadFoo(u).right
+  } yield b
 ```
+
+---
+
+template: question
+
+## This is _not_ a Monad tutorial
 
 ---
 
@@ -641,22 +658,6 @@ template: question
 
 ## Disjunction
 ## \/
-
----
-
-## Disjunction
-
-```scala
-def foo: \/[Exception, User]
-```
-
----
-
-## Disjunction Infix
-
-```scala
-def foo: Exception \/ User
-```
 
 ---
 
@@ -677,15 +678,12 @@ def load(id: Int): Exception \/ List[Foo] =
 
 ---
 
-template: question
-
-## This is _not_ a Monad tutorial
-
----
-
 ## What now?
 
 ```scala
+def load(id: Int): Exception \/ List[Foo]
+
+
 load(id) match {
 
   case Left(e) =>
@@ -697,7 +695,7 @@ load(id) match {
 
 ---
 
-## Types Are Good
+## Data
 
 ```scala
 case class UserNotFound(id: Int)
@@ -707,7 +705,7 @@ case class FooNotFound(user: User)
 
 ---
 
-## Types Are Good
+## Data
 
 ```scala
 case class UserNotFound(id: Int)
