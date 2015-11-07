@@ -1052,6 +1052,12 @@ def load(id: Int): Future[LoadError \/ List[Foo]] =
 
 ---
 
+template: question
+
+## This is _not_ a Monad Transformers tutorial
+
+---
+
 ## EitherT
 
 ```scala
@@ -1140,12 +1146,6 @@ def load(id: Int): EitherT[Future, LoadError, List[Foo]] =
     b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
   } yield b
 ```
-
----
-
-template: question
-
-## This is _not_ a Monad Transformers tutorial
 
 ---
 
