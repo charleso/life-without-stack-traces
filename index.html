@@ -724,6 +724,8 @@ template: question
 ## Disjunction
 
 ```scala
+import scalaz._, Scalaz._
+
 def loadUser(id: Int): Exception \/ User
 
 def loadFoo(u: User): Exception \/ List[Foo]
