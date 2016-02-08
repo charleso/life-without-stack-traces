@@ -394,6 +394,11 @@ java.lang.NullPointerException
 <pre>  at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:228)</pre>
 <pre>  at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582)    </pre>
 </div>
+
+???
+
+- Side note: we might like to know what the values at those functions calls were
+
 ---
 
 ## Real world
@@ -544,7 +549,7 @@ trait Option[A] {
 
 
 
-def foo   (s: String, i: Int): String
+def foo      (s: String, i: Int): String
 ```
 
 ---
@@ -556,7 +561,7 @@ def foo   (s: String, i: Int): String
 
 
 
-def charAt(s: String, i: Int): String
+def substring(s: String, i: Int): String
 ```
 ---
 
@@ -567,7 +572,7 @@ def charAt(s: String, i: Int): String
  * @throws IndexOutOfBoundsException
  *   - if beginIndex is &lt; or &gt; than the length
  */
-def charAt(s: String, i: Int): String
+def substring(s: String, i: Int): String
 ```
 
 ---
@@ -722,6 +727,18 @@ template: image
 ## Either
 
 ```scala
+sealed trait Either[L, R]
+
+case class Left(l: L) extends Either[L, Nothing]
+
+case class Right(r: R) extends Either[Nothing, R]
+```
+
+---
+
+## Either
+
+```scala
 def loadUser(id: Int): Either[Exception, User]
 
 def loadFoo(u: User): Either[Exception, List[Foo]]
@@ -783,6 +800,12 @@ load(id) match {
     e.printStackTrace
 }
 ```
+
+---
+
+template: question
+
+## Data types are cheap
 
 ---
 
