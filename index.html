@@ -396,13 +396,7 @@ java.lang.NullPointerException
 </div>
 ---
 
-template: inverse
-
-# FP
-
----
-
-## FP is awesome
+## Real world
 
 ```scala
 def load(id: Int): Future[List[Foo]] =
@@ -466,7 +460,23 @@ template: question
 
 ---
 
-## [scala.PartialFunction](http://www.scala-lang.org/api/current/index.html#scala.PartialFunction)
+template: question
+
+## Partial Functions
+
+### "Functions that throw exceptions (or return null)"
+
+---
+
+template: question
+
+## Partial Functions
+
+### "Functions that aren't functions"
+
+---
+
+## NOT [scala.PartialFunction](http://www.scala-lang.org/api/current/index.html#scala.PartialFunction)
 
 ```scala
 trait PartialFunction[A, B] extends Function[A, B] {
@@ -534,7 +544,7 @@ trait Option[A] {
 
 
 
-def foo      (s: String, i: Int): String
+def foo   (s: String, i: Int): String
 ```
 
 ---
@@ -546,7 +556,7 @@ def foo      (s: String, i: Int): String
 
 
 
-def substring(s: String, i: Int): String
+def charAt(s: String, i: Int): String
 ```
 ---
 
@@ -557,7 +567,7 @@ def substring(s: String, i: Int): String
  * @throws IndexOutOfBoundsException
  *   - if beginIndex is &lt; or &gt; than the length
  */
-def substring(s: String, i: Int): String
+def charAt(s: String, i: Int): String
 ```
 
 ---
@@ -604,6 +614,21 @@ def hello: List[String] =
 - Depends on `foo`
 - Which depends on `bar`
 - Which depends on...
+
+---
+
+## Is this partial?
+
+```scala
+def hello: List[String] =
+  foo("hello world")
+```
+
+- Depends on `foo`
+- Which depends on `bar`
+- Which depends on...
+- We use names (and familiarity) to detect errors
+- Partial functions don't compose
 
 ---
 
@@ -663,7 +688,8 @@ def bar =
 - Not future proof
   - Functions that introduce new errors
     won't require code change 
-- Rely on stacktraces when they occur
+- Stacktraces are not always useful
+  - eg. Future
 
 ---
 
@@ -708,30 +734,15 @@ def load(id: Int): Either[Exception, List[Foo]] =
 
 ---
 
-template: question
-
-## This is _not_ a Monad tutorial
-
----
-
-template: question
-
-## Disjunction
-## \/
-
----
-
-## Disjunction
+## Either in action (almost)
 
 ```scala
-import scalaz._, Scalaz._
+def loadUser(id: Int): Either[Exception, User]
 
-def loadUser(id: Int): Exception \/ User
-
-def loadFoo(u: User): Exception \/ List[Foo]
+def loadFoo(u: User): Either[Exception, List[Foo]]
 
 
-def load(id: Int): Exception \/ List[Foo] =
+def load(id: Int): Either[Exception, List[Foo]] =
   for {
     u &lt;- loadUser(id)
     b &lt;- loadFoo(u)
@@ -743,7 +754,7 @@ def load(id: Int): Exception \/ List[Foo] =
 ## What now?
 
 ```scala
-def load(id: Int): Exception \/ List[Foo]
+def load(id: Int): Either[Exception, List[Foo]]
 
 
 load(id) match {
@@ -775,9 +786,9 @@ case class UserNotFound(id: Int)
 case class FooNotFound(user: User)
 
 
-def loadUser(id: Int): UserNotFound \/ User
+def loadUser(id: Int): Either[UserNotFound, User]
 
-def loadFoo(u: User): FooNotFound \/ List[Foo]
+def loadFoo(u: User): Either[FooNotFound, List[Foo]]
 ```
 
 ---
@@ -790,7 +801,7 @@ case class UserNotFound(id: Int)
 case class FooNotFound(user: User)
 
 
-def load(id: Int): ??? \/ List[Foo] =
+def load(id: Int): Either[???, List[Foo]] =
   for {
     u &lt;- loadUser(id)
     b &lt;- loadFoo(u)
@@ -807,12 +818,18 @@ case class UserNotFound(id: Int) extends Exception
 case class FooNotFound(user: User) extends Exception
 
 
-def load(id: Int): Exception \/ List[Foo] =
+def load(id: Int): Either[Exception, List[Foo]] =
   for {
     u &lt;- loadUser(id)
     b &lt;- loadFoo(u)
   } yield b
 ```
+
+---
+
+template: question
+
+## Data types are cheap
 
 ---
 
@@ -830,25 +847,33 @@ case class LoadErrorFoo(e: FooNotFound)
 
 ---
 
-## Left Map
+## Update error
 
 ```scala
-trait \/[L, R] {
-
-  def leftMap[L2](f: L => L2): L2 \/ R
-}
+def load(id: Int): Either[LoadError, List[Foo]] =
+  for {
+    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
+    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+  } yield b
 ```
 
 ---
 
-## Left Map
+## Update error
 
 ```scala
-def load(id: Int): LoadError \/ List[Foo] =
+def load(id: Int): Either[LoadError, List[Foo]] =
   for {
-    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
-    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
+    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
   } yield b
+
+
+def updateError[L2](f: L => L2): Either[L2, R] =
+  this match {
+    Left(l) => Left(f(l))
+    Right(r) => Right(r)
+  }
 ```
 
 ---
@@ -856,7 +881,7 @@ def load(id: Int): LoadError \/ List[Foo] =
 ## Types FTW
 
 ```scala
-def load(id: Int): LoadError \/ List[Foo]
+def load(id: Int): Either[LoadError, List[Foo]]
 ```
 
 ---
@@ -921,6 +946,17 @@ def loadErrorStatusCode(e: LoadError): HttpStatus =
 
 ---
 
+## Errors as data
+
+- Error messages
+- Logging
+- HTTP status codes
+- Executable exit codes
+- JSON serialisation
+- ...
+
+---
+
 template: question
 
 # Future proof
@@ -932,11 +968,7 @@ template: question
 ```scala
 sealed trait LoadError
 
-case class LoadErrorUser(e: UserNotFound)
-  extends LoadError
-
-case class LoadErrorFoo(e: FooNotFound)
-  extends LoadError
+...
 
 case class LoadErrorBar(e: BarNotFound)
   extends LoadError
@@ -978,10 +1010,10 @@ template: question
 case class LoadErrorFoo(e: FooNotFound)
   extends LoadError
 
-def load(id: Int): LoadError \/ List[Foo] =
+def load(id: Int): Either[LoadError, List[Foo]] =
   for {
-    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
-    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
+    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
   } yield b
 ```
 
@@ -989,7 +1021,7 @@ def load(id: Int): LoadError \/ List[Foo] =
 
 ## Add context
 
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorFoo</span>(</span>e: <span class="hljs-type">FooNotFound</span>, <span class="red"><span class="red">c:</span> Context</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>, <span class="red"><span class="red">c:</span> Context</span>): <span class="hljs-type">LoadError</span> \/ <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).leftMap(<span class="hljs-type">LoadErrorUser</span>(_))</div><div class="remark-code-line">    b &lt;- loadFoo(u).leftMap(<span class="hljs-type">LoadErrorFoo</span>(_, <span class="red"><span class="red">c</span></span>))</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
+<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorFoo</span>(</span>e: <span class="hljs-type">FooNotFound</span>, <span class="red"><span class="red">c:</span> Context</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>, <span class="red"><span class="red">c:</span> Context</span>): <span class="hljs-type">LoadError</span> \/ <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).updateError(<span class="hljs-type">LoadErrorUser</span>(_))</div><div class="remark-code-line">    b &lt;- loadFoo(u).updateError(<span class="hljs-type">LoadErrorFoo</span>(_, <span class="red"><span class="red">c</span></span>))</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
 </code></pre>
 
 ---
@@ -1023,11 +1055,11 @@ template: image
 
 ---
 
-## What now?
+## So far
 
 ```scala
-def loadUser(id: Int): Future[UserError \/ User]
-def loadFoo(u: User): Future[FooError \/ List[Foo]]
+def loadUser(id: Int): Either[UserError, User]
+def loadFoo(u: User): Either[FooError, List[Foo]]
 ```
 
 ---
@@ -1035,10 +1067,19 @@ def loadFoo(u: User): Future[FooError \/ List[Foo]]
 ## What now?
 
 ```scala
-def loadUser(id: Int): Future[UserError \/ User]
-def loadFoo(u: User): Future[FooError \/ List[Foo]]
+def loadUser(id: Int): Future[Either[UserError, User]]
+def loadFoo(u: User): Future[Either[FooError, List[Foo]]]
+```
 
-def load(id: Int): Future[LoadError \/ List[Foo]] =
+---
+
+## What now?
+
+```scala
+def loadUser(id: Int): Future[Either[UserError, User]]
+def loadFoo(u: User): Future[Either[FooError, List[Foo]]]
+
+def load(id: Int): Future[Either[LoadError, List[Foo]]] =
   for {
     u &lt;- loadUser(id)
     b &lt;- u match {
@@ -1052,84 +1093,57 @@ def load(id: Int): Future[LoadError \/ List[Foo]] =
 
 ---
 
-template: question
+## Future + Either
 
-## This is _not_ a Monad Transformers tutorial
+```scala
+case class FutureE[L, R](run: Future[Either[L, R]]) {
+
+
+
+
+
+
+}
+```
+
+---
+
+## Future + Either
+
+```scala
+case class FutureE[L, R](run: Future[Either[L, R]]) {
+
+  def map(..) = ...
+
+  def flatMap(..) ...
+
+  def updateError(..) = ...
+}
+```
+---
+
+## Future + Either (take 2)
+
+```scala
+case class FutureE[L, R](run: Future[Either[L, R]])
+
+
+def loadUser(id: Int): FutureE[UserError, User]
+def loadFoo(u: User): FutureE[FooError, List[Foo]]
+
+def load(id: Int): FutureE[LoadError, List[Foo]] =
+  for {
+    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
+    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+  } yield b
+```
 
 ---
 
 ## EitherT
 
 ```scala
-import scalaz._, Scalaz._
-
-case class EitherT[F[_], L, R](run: F[L \/ R])
-```
-
----
-
-## Example
-
-```scala
-import scalaz._, Scalaz._
-
-case class EitherT[F[_], L, R](run: F[L \/ R])
-
-
-def foo: Future[Exception \/ User] =
-  ...
-```
-
----
-
-## Example
-
-```scala
-import scalaz._, Scalaz._
-
-case class EitherT[F[_], L, R](run: F[L \/ R])
-
-
-def foo: Future[Exception \/ User] =
-  ...
-
-def bar: EitherT[Future, Exception, User] =
-  EitherT(foo)
-```
-
----
-
-## Example
-
-```scala
-import scalaz._, Scalaz._
-
-case class EitherT[F[_], L, R](run: F[L \/ R])
-
-
-def foo: Future[Exception \/ User] =
-  ...
-
-def bar: EitherT[Future, Exception, User] =
-  EitherT(foo)
-
-def baz: Future[Exception \/ User] =
-  bar.run
-```
-
----
-
-## From before
-
-```scala
-def loadUser(id: Int): UserError \/ User
-def loadFoo(u: User): FooError \/ List[Foo]
-
-def load(id: Int): LoadError \/ List[Foo] =
-  for {
-    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
-    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
-  } yield b
+case class EitherT[F[_], L, R](run: F[Either[L, R]])
 ```
 
 ---
@@ -1137,83 +1151,18 @@ def load(id: Int): LoadError \/ List[Foo] =
 ## EitherT + Future
 
 ```scala
+case class EitherT[F[_], L, R](run: F[Either[L, R]])
+
+
 def loadUser(id: Int): EitherT[Future, UserError, User]
 def loadFoo(u: User): EitherT[Future, FooError, List[Foo]]
 
 def load(id: Int): EitherT[Future, LoadError, List[Foo]] =
   for {
-    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
-    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
+    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
+    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
   } yield b
 ```
-
----
-
-## Wat
-
-```scala
-def loadUser(id: Int): EitherT[Future, UserError, User]
-def loadFoo(u: User): EitherT[Future, FooError, List[Foo]]
-
-def load(id: Int): EitherT[Future, LoadError, List[Foo]] =
-  for {
-    u &lt;- loadUser(id).leftMap(LoadErrorUser(_))
-    b &lt;- loadFoo(u).leftMap(LoadErrorFoo(_))
-  } yield b
-```
-
-<pre style="color: red">
-Error:(46, 9) type mismatch;
- found   : scalaz.EitherT[scala.concurrent.Future,EitherTExample.LoadErrorUser,Nothing]
- required: scalaz.EitherT[scala.concurrent.Future,EitherTExample.LoadError,List[EitherTExample.Foo]]
-Note: EitherTExample.LoadErrorUser <: EitherTExample.LoadError, but class EitherT is invariant in type A.
-You may wish to define A as +A instead. (SLS 4.5)
-Note: Nothing <: List[EitherTExample.Foo], but class EitherT is invariant in type B.
-You may wish to define B as +B instead. (SLS 4.5)
- u <- EitherT(loadUser(id)).leftMap(LoadErrorUser)
-        ^
-</pre>
-
----
-
-## Variance
-
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">\/</span>[</span><span class="red"><span class="red">+</span>A</span>, +<span class="hljs-type">B</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EitherT</span>[</span><span class="hljs-type">F</span>[_], <span class="red">A</span>, <span class="hljs-type">B</span>](run: <span class="hljs-type">F</span>[\/[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>]])</div>
-</code></pre>
-
----
-
-## Variance
-
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">\/</span>[</span><span class="red"><span class="red">+</span>A</span>, +<span class="hljs-type">B</span>]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EitherT</span>[</span><span class="hljs-type">F</span>[_], <span class="red">A</span>, <span class="hljs-type">B</span>](run: <span class="hljs-type">F</span>[\/[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>]])</div>
-</code></pre>
-
-<br/>
-
-Scalaz removed variance from EitherT (and friends) in 7.1
-
-https://groups.google.com/forum/#!msg/scalaz/-OEK9DhyB_Q/kyG5XyKmmL0J
-
----
-
-## Manual typing
-
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadUser</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">UserError</span>, <span class="hljs-type">User</span>]</div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadFoo</span>(</span>u: <span class="hljs-type">User</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">FooError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">LoadError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id)\.leftMap[<span class="red">LoadError</span>](<span class="hljs-type">LoadErrorUser</span>(_))</div><div class="remark-code-line">    b &lt;- loadFoo(u)\.leftMap[<span class="red">LoadError</span>](<span class="hljs-type">LoadErrorFoo</span>(_))</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
-</code></pre>
-
----
-
-## Function "constructors"
-
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">LoadError</span></span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorUser</span>(</span>e: <span class="hljs-type">UserNotFound</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorFoo</span>(</span>e: <span class="hljs-type">FooNotFound</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">LoadError</span> {</span></div><div class="remark-code-line"></div><div class="remark-code-line">   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">user</span>(</span>e: <span class="hljs-type">UserNotFound</span>): <span class="red">LoadError</span> =</div><div class="remark-code-line">     <span class="hljs-type">LoadErrorUser</span>(e)</div><div class="remark-code-line"></div><div class="remark-code-line">   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span>(</span>e: <span class="hljs-type">FooNotFound</span>): <span class="red">LoadError</span> =</div><div class="remark-code-line">     <span class="hljs-type">LoadErrorFoo</span>(e)</div><div class="remark-code-line">}</div>
-</code></pre>
-
----
-
-## Fixed
-
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadUser</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">UserError</span>, <span class="hljs-type">User</span>]</div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">loadFoo</span>(</span>u: <span class="hljs-type">User</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">FooError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]]</div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>): <span class="hljs-type">EitherT</span>[<span class="hljs-type">Future</span>, <span class="hljs-type">LoadError</span>, <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>]] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).leftMap(<span style="color: red">LoadError.user(_)</span>)</div><div class="remark-code-line">    b &lt;- loadFoo(u).leftMap(<span style="color: red">LoadError.foo(_)</span>)</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
-</code></pre>
 
 
 
