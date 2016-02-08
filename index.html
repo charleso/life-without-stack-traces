@@ -628,7 +628,7 @@ def hello: List[String] =
 - Which depends on `bar`
 - Which depends on...
 - We use names (and familiarity) to detect errors
-- Partial functions don't compose
+  - Doesn't scale as we compose
 
 ---
 
@@ -687,7 +687,7 @@ def bar =
   - Harder to review
 - Not future proof
   - Functions that introduce new errors
-    won't require code change 
+    won't require code change
 - Stacktraces are not always useful
   - eg. Future
 
@@ -731,6 +731,12 @@ def load(id: Int): Either[Exception, List[Foo]] =
     b &lt;- loadFoo(u).right
   } yield b
 ```
+
+???
+
+- If `loadUser()` returns an exception, stop
+- If `loadFoo()` return an exception, stop
+- etc
 
 ---
 
@@ -848,6 +854,10 @@ case class LoadErrorFoo(e: FooNotFound)
   extends LoadError
 ```
 
+???
+
+- Explain sealed trait
+
 ---
 
 ## Types FTW
@@ -918,7 +928,7 @@ load(id) match {
       case LoadErrorUser(u) =>
         ...
 
-      case LoadErrorFoo(f)
+      case LoadErrorFoo(f) =>
         ...
     }
 }
@@ -936,7 +946,7 @@ def render(e: LoadError): String =
       case LoadErrorUser(u) =>
         s"Error loading user: ${u.render}"
 
-      case LoadErrorFoo(f)
+      case LoadErrorFoo(f) =>
          s"Error loading foo: ${f.render}"
 }
 ```
@@ -953,7 +963,7 @@ def loadErrorStatusCode(e: LoadError): HttpStatus =
       case LoadErrorUser(_) =>
          notFound404
 
-      case LoadErrorFoo(_)
+      case LoadErrorFoo(_) =>
          notFound400
 }
 ```
@@ -977,22 +987,62 @@ template: question
 
 ---
 
-## Please sir
+## So far so good
 
 ```scala
 sealed trait LoadError
 
 ...
 
+
+load(id) match {
+  case Left(e) =>
+    e match {
+      case LoadErrorUser(u) => ...
+      case LoadErrorFoo(f) => ...
+    }
+}
+```
+
+---
+
+## Please sir
+
+```scala
+sealed trait LoadError
+
 case class LoadErrorBar(e: BarNotFound)
   extends LoadError
+
+load(id) match {
+  case Left(e) =>
+    e match {
+      case LoadErrorUser(u) => ...
+      case LoadErrorFoo(f) => ...
+    }
+}
 ```
 
 ---
 
 ## Compile warnings
 
-<pre><code class="remark-code"><div><span style="color: #DDDD00">[warn]</span> match may not be exhaustive.</div><div><span style="color: #DDDD00">[warn]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: #DDDD00">[warn]</span>     load(1) match {</div><div><span style="color: #DDDD00">[warn]</span>         ^</div>
+```scala
+sealed trait LoadError
+
+case class LoadErrorBar(e: BarNotFound)
+  extends LoadError
+
+load(id) match {
+  case Left(e) =>
+    e match {
+      case LoadErrorUser(u) => ...
+      case LoadErrorFoo(f) => ...
+    }
+}
+```
+
+<pre><code class="remark-code"><div><span style="color: #DDDD00">[warn]</span> match may not be exhaustive.</div><div><span style="color: #DDDD00">[warn]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: #DDDD00">[warn]</span>     load(id) match {</div><div><span style="color: #DDDD00">[warn]</span>         ^</div>
 </code></pre>
 
 ---
@@ -1000,15 +1050,49 @@ case class LoadErrorBar(e: BarNotFound)
 ## Warnings as errors
 
 ```scala
+sealed trait LoadError
+
+case class LoadErrorBar(e: BarNotFound)
+  extends LoadError
+
+load(id) match {
+  case Left(e) =>
+    e match {
+      case LoadErrorUser(u) => ...
+      case LoadErrorFoo(f) => ...
+    }
+}
+```
+
+```scala
 scalacOptions in Compile ++= Seq("-Xfatal-warnings")
 ```
 
 ---
 
-## Compile warnings
+## Compile errors
 
-<pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: red">[error]</span>     load(1) match {</div><div><span style="color: red">[error]</span>         ^</div>
-</code></pre>     
+```scala
+sealed trait LoadError
+
+case class LoadErrorBar(e: BarNotFound)
+  extends LoadError
+
+load(id) match {
+  case Left(e) =>
+    e match {
+      case LoadErrorUser(u) => ...
+      case LoadErrorFoo(f) => ...
+    }
+}
+```
+
+```scala
+scalacOptions in Compile ++= Seq("-Xfatal-warnings")
+```
+
+<pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: red">[error]</span>     load(id) match {</div><div><span style="color: red">[error]</span>         ^</div>
+</code></pre>
 
 ---
 
