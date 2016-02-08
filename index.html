@@ -646,6 +646,18 @@ template: question
  *
  */
 def foo: Unit
+```
+
+---
+
+## Today
+
+```scala
+/**
+ * @throws BadException
+ *
+ */
+def foo: Unit
 
 
 def bar =
@@ -1085,10 +1097,6 @@ load(id) match {
       case LoadErrorFoo(f) => ...
     }
 }
-```
-
-```scala
-scalacOptions in Compile ++= Seq("-Xfatal-warnings")
 ```
 
 <pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: red">[error]</span>     load(id) match {</div><div><span style="color: red">[error]</span>         ^</div>
