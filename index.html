@@ -836,6 +836,26 @@ template: question
 ## Data types are cheap
 
 ```scala
+
+
+
+sealed trait LoadError
+
+case class LoadErrorUser(e: UserNotFound)
+  extends LoadError
+
+case class LoadErrorFoo(e: FooNotFound)
+  extends LoadError
+```
+
+---
+
+## Types FTW
+
+```scala
+def load(id: Int): Either[LoadError, List[Foo]]
+
+
 sealed trait LoadError
 
 case class LoadErrorUser(e: UserNotFound)
@@ -869,19 +889,13 @@ def load(id: Int): Either[LoadError, List[Foo]] =
   } yield b
 
 
-def updateError[L2](f: L => L2): Either[L2, R] =
-  this match {
-    Left(l) => Left(f(l))
-    Right(r) => Right(r)
-  }
-```
+trait Either[L, R] {
 
----
-
-## Types FTW
-
-```scala
-def load(id: Int): Either[LoadError, List[Foo]]
+  def updateError[L2](f: L => L2): Either[L2, R] =
+    this match {
+      Left(l) => Left(f(l))
+      Right(r) => Right(r)
+    }
 ```
 
 ---
@@ -1115,7 +1129,7 @@ case class FutureE[L, R](run: Future[Either[L, R]]) {
 
   def map(..) = ...
 
-  def flatMap(..) ...
+  def flatMap(..) = ...
 
   def updateError(..) = ...
 }
