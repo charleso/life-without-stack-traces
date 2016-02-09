@@ -850,24 +850,6 @@ def login(a: Auth): Either[Exception, User]
 ```scala
 sealed trait LoginError
 
-
-
-
-
-
-
-
-
-def login(a: Auth): Either[LoginError, User]
-```
-
----
-
-## Data
-
-```scala
-sealed trait LoginError
-
 case class InvalidCredentials(a: Auth) extends LoginError
 
 
@@ -884,17 +866,37 @@ def login(a: Auth): Either[LoginError, User]
 ## Data
 
 ```scala
-sealed trait LoginError
 
-case class InvalidCredentials(a: Auth) extends LoginError
+
+
+
+
+
+
+
+
+/**
+ * @throws UserNotFoundException
+ */
+def load(u: Session, u: UserId): Either[Exception, User]
+```
+
+---
+
+## Data
+
+```scala
+
+
+
 
 
 sealed trait UserError
 
+case class UserNotFound(u: UserId) extends UserError
 
 
 
-def login(a: Auth): Either[LoginError, User]
 
 def load(u: Session, u: UserId): Either[UserError, User]
 ```
