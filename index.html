@@ -404,10 +404,10 @@ java.lang.NullPointerException
 ## Real world
 
 ```scala
-def load(id: Int): Future[List[Foo]] =
+def run(a: Auth, u: UserId): Future[User] =
   for {
-    u &lt;- loadUser(id)
-    b &lt;- loadFoo(u)
+    s &lt;- login(c)
+    b &lt;- load(s, u)
   } yield b
 ```
 
@@ -416,10 +416,10 @@ def load(id: Int): Future[List[Foo]] =
 ## Boom
 
 ```scala
-def load(id: Int): Future[List[Foo]] =
+def run(a: Auth, u: UserId): Future[User] =
   for {
-    u &lt;- loadUser(id)
-    b &lt;- loadFoo(u)
+    s &lt;- login(c)
+    b &lt;- load(s, u)
   } yield b
 ```
 
@@ -427,7 +427,7 @@ def load(id: Int): Future[List[Foo]] =
 
 <pre style="font-size: 13px;">
 Exception in thread "main" java.lang.NullPointerException
-	at Example.loadFoo(Example.scala:17)
+	at Example.load(Example.scala:17)
 	at Example$$anonfun$bar$1.apply$mcI$sp(Example.scala:17)
 	at Example$$anonfun$bar$1.apply(Example.scala:17)
 	at Example$$anonfun$bar$1.apply(Example.scala:17)
@@ -739,9 +739,15 @@ case class Right(r: R) extends Either[Nothing, R]
 ## Either
 
 ```scala
-def loadUser(id: Int): Either[Exception, User]
+/**
+ * @throws InvalidCredentialsException
+ */
+def login(a: Auth): Either[Exception, Session]
 
-def loadFoo(u: User): Either[Exception, List[Foo]]
+/**
+ * @throws UserNotFoundException
+ */
+def load(u: Session, u: UserId): Either[Exception, User]
 ```
 
 ---
@@ -749,22 +755,28 @@ def loadFoo(u: User): Either[Exception, List[Foo]]
 ## Either in action
 
 ```scala
-def loadUser(id: Int): Either[Exception, User]
+/**
+ * @throws InvalidCredentialsException
+ */
+def login(a: Auth): Either[Exception, Session]
 
-def loadFoo(u: User): Either[Exception, List[Foo]]
+/**
+ * @throws UserNotFoundException
+ */
+def load(u: Session, u: UserId): Either[Exception, User]
 
 
-def load(id: Int): Either[Exception, List[Foo]] =
+def run(a: Auth, u: UserId): Either[Exception, User] =
   for {
-    u &lt;- loadUser(id).right
-    b &lt;- loadFoo(u).right
+    s &lt;- login(c).right
+    b &lt;- load(s, u).right
   } yield b
 ```
 
 ???
 
-- If `loadUser()` returns an exception, stop
-- If `loadFoo()` return an exception, stop
+- If `login()` returns an exception, stop
+- If `load()` return an exception, stop
 - etc
 
 ---
@@ -772,15 +784,21 @@ def load(id: Int): Either[Exception, List[Foo]] =
 ## Either in action (almost)
 
 ```scala
-def loadUser(id: Int): Either[Exception, User]
+/**
+ * @throws InvalidCredentialsException
+ */
+def login(a: Auth): Either[Exception, Session]
 
-def loadFoo(u: User): Either[Exception, List[Foo]]
+/**
+ * @throws UserNotFoundException
+ */
+def load(u: Session, u: UserId): Either[Exception, User]
 
 
-def load(id: Int): Either[Exception, List[Foo]] =
+def run(a: Auth, u: UserId): Either[Exception, User] =
   for {
-    u &lt;- loadUser(id)
-    b &lt;- loadFoo(u)
+    s &lt;- login(c)
+    b &lt;- load(s, u)
   } yield b
 ```
 
@@ -789,10 +807,10 @@ def load(id: Int): Either[Exception, List[Foo]] =
 ## What now?
 
 ```scala
-def load(id: Int): Either[Exception, List[Foo]]
+def run(a: Auth, u: UserId): Either[Exception, User]
 
 
-load(id) match {
+run(c, u) match {
 
   case Left(e) =>
 
@@ -812,9 +830,17 @@ template: question
 ## Data
 
 ```scala
-case class UserNotFound(id: Int)
 
-case class FooNotFound(user: User)
+
+
+
+
+
+
+/**
+ * @throws InvalidCredentialsException
+ */
+def login(a: Auth): Either[Exception, User]
 ```
 
 ---
@@ -822,14 +848,75 @@ case class FooNotFound(user: User)
 ## Data
 
 ```scala
-case class UserNotFound(id: Int)
-
-case class FooNotFound(user: User)
+sealed trait LoginError
 
 
-def loadUser(id: Int): Either[UserNotFound, User]
 
-def loadFoo(u: User): Either[FooNotFound, List[Foo]]
+
+
+
+
+
+
+def login(a: Auth): Either[LoginError, User]
+```
+
+---
+
+## Data
+
+```scala
+sealed trait LoginError
+
+case class InvalidCredentials(a: Auth) extends LoginError
+
+
+
+
+
+
+
+def login(a: Auth): Either[LoginError, User]
+```
+
+---
+
+## Data
+
+```scala
+sealed trait LoginError
+
+case class InvalidCredentials(a: Auth) extends LoginError
+
+
+sealed trait UserError
+
+
+
+
+def login(a: Auth): Either[LoginError, User]
+
+def load(u: Session, u: UserId): Either[UserError, User]
+```
+
+---
+
+## Data
+
+```scala
+sealed trait LoginError
+
+case class InvalidCredentials(a: Auth) extends LoginError
+
+
+sealed trait UserError
+
+case class UserNotFound(u: UserId) extends UserError
+
+
+def login(a: Auth): Either[LoginError, User]
+
+def load(u: Session, u: UserId): Either[UserError, User]
 ```
 
 ---
@@ -837,15 +924,20 @@ def loadFoo(u: User): Either[FooNotFound, List[Foo]]
 ## Hmmm
 
 ```scala
-case class UserNotFound(id: Int)
-
-case class FooNotFound(user: User)
+sealed trait LoginError
 
 
-def load(id: Int): Either[???, List[Foo]] =
+
+
+sealed trait UserError
+
+
+
+
+def run(a: Auth, u: UserId): Either[???, User] =
   for {
-    u &lt;- loadUser(id)
-    b &lt;- loadFoo(u)
+    s &lt;- login(c)
+    b &lt;- load(s, u)
   } yield b
 ```
 
@@ -854,15 +946,20 @@ def load(id: Int): Either[???, List[Foo]] =
 ## Back where we started
 
 ```scala
-case class UserNotFound(id: Int) extends Exception
-
-case class FooNotFound(user: User) extends Exception
+sealed abstract class LoginError extends Exception
 
 
-def load(id: Int): Either[Exception, List[Foo]] =
+
+
+sealed abstract class UserError extends Exception
+
+
+
+
+def run(a: Auth, u: UserId): Either[Exception, User] =
   for {
-    u &lt;- loadUser(id)
-    b &lt;- loadFoo(u)
+    s &lt;- login(c)
+    b &lt;- load(s, u)
   } yield b
 ```
 
@@ -880,13 +977,11 @@ template: question
 
 
 
-sealed trait LoadError
+sealed trait AppError
 
-case class LoadErrorUser(e: UserNotFound)
-  extends LoadError
+case class AppLoginError(e: LoginError) extends AppError
 
-case class LoadErrorFoo(e: FooNotFound)
-  extends LoadError
+case class AppUserError(e: UserError) extends AppError
 ```
 
 ???
@@ -898,16 +993,14 @@ case class LoadErrorFoo(e: FooNotFound)
 ## Types FTW
 
 ```scala
-def load(id: Int): Either[LoadError, List[Foo]]
+def run(a: Auth, u: UserId): Either[AppError, User]
 
 
-sealed trait LoadError
+sealed trait AppError
 
-case class LoadErrorUser(e: UserNotFound)
-  extends LoadError
+case class AppLoginError(e: LoginError) extends AppError
 
-case class LoadErrorFoo(e: FooNotFound)
-  extends LoadError
+case class AppUserError(e: UserError) extends AppError
 ```
 
 ---
@@ -915,10 +1008,10 @@ case class LoadErrorFoo(e: FooNotFound)
 ## Update error
 
 ```scala
-def load(id: Int): Either[LoadError, List[Foo]] =
+def run(a: Auth, u: UserId): Either[AppError, User] =
   for {
-    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
-    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+    s &lt;- login(c).updateError(AppLoginError(_))
+    b &lt;- load(s, u).updateError(AppUserError(_))
   } yield b
 ```
 
@@ -927,10 +1020,10 @@ def load(id: Int): Either[LoadError, List[Foo]] =
 ## Update error
 
 ```scala
-def load(id: Int): Either[LoadError, List[Foo]] =
+def run(a: Auth, u: UserId): Either[AppError, User] =
   for {
-    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
-    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+    s &lt;- login(c).updateError(AppLoginError(_))
+    b &lt;- load(s, u).updateError(AppUserError(_))
   } yield b
 
 
@@ -948,7 +1041,7 @@ trait Either[L, R] {
 ## Now when we call...
 
 ```scala
-load(id)
+run(c, u)
 ```
 
 ---
@@ -956,14 +1049,14 @@ load(id)
 ## ...we have to do _something_
 
 ```scala
-load(id) match {
+run(c, u) match {
   case Left(e) =>
     e match {
 
-      case LoadErrorUser(u) =>
+      case AppLoginError(InvalidCredentials(_)) =>
         ...
 
-      case LoadErrorFoo(f) =>
+      case AppUserError(UserNotFound(_)) =>
         ...
     }
 }
@@ -974,15 +1067,15 @@ load(id) match {
 ## Print details
 
 ```scala
-def render(e: LoadError): String =
+def render(e: AppError): String =
 
     e match {
 
-      case LoadErrorUser(u) =>
-        s"Error loading user: ${u.render}"
+      case AppLoginError(InvalidCredentials(c)) =>
+        s"Error on login: ${c.username}"
 
-      case LoadErrorFoo(f) =>
-         s"Error loading foo: ${f.render}"
+      case AppUserError(UserNotFound(u)) =>
+         s"Could not find user: ${u.id}"
 }
 ```
 
@@ -991,15 +1084,15 @@ def render(e: LoadError): String =
 ## Exit status
 
 ```scala
-def loadErrorStatusCode(e: LoadError): HttpStatus =
+def loadErrorStatusCode(e: AppError): HttpStatus =
 
     e match {
 
-      case LoadErrorUser(_) =>
-         notFound404
+      case AppLoginError(InvalidCredentials(_)) =>
+         notFound403
 
-      case LoadErrorFoo(_) =>
-         notFound400
+      case AppUserError(UserNotFound(_)) =>
+         notFound404
 }
 ```
 
@@ -1025,16 +1118,16 @@ template: question
 ## So far so good
 
 ```scala
-sealed trait LoadError
+sealed trait AppError
 
 ...
 
 
-load(id) match {
+run(c, u) match {
   case Left(e) =>
     e match {
-      case LoadErrorUser(u) => ...
-      case LoadErrorFoo(f) => ...
+      case AppLoginError(InvalidCredentials(_)) => ...
+      case AppUserError(UserNotFound(_)) => ...
     }
 }
 ```
@@ -1044,16 +1137,16 @@ load(id) match {
 ## Please sir
 
 ```scala
-sealed trait LoadError
+sealed trait AppError
 
-case class LoadErrorBar(e: BarNotFound)
-  extends LoadError
+case class AppFooError() extends AppError
 
-load(id) match {
+
+run(c, u) match {
   case Left(e) =>
     e match {
-      case LoadErrorUser(u) => ...
-      case LoadErrorFoo(f) => ...
+      case AppLoginError(InvalidCredentials(_)) => ...
+      case AppUserError(UserNotFound(_)) => ...
     }
 }
 ```
@@ -1063,38 +1156,42 @@ load(id) match {
 ## Compile warnings
 
 ```scala
-sealed trait LoadError
+sealed trait AppError
 
-case class LoadErrorBar(e: BarNotFound)
-  extends LoadError
+case class AppFooError() extends AppError
 
-load(id) match {
+
+run(c, u) match {
   case Left(e) =>
     e match {
-      case LoadErrorUser(u) => ...
-      case LoadErrorFoo(f) => ...
+      case AppLoginError(InvalidCredentials(_)) => ...
+      case AppUserError(UserNotFound(_)) => ...
     }
 }
 ```
 
-<pre><code class="remark-code"><div><span style="color: #DDDD00">[warn]</span> match may not be exhaustive.</div><div><span style="color: #DDDD00">[warn]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: #DDDD00">[warn]</span>     load(id) match {</div><div><span style="color: #DDDD00">[warn]</span>         ^</div>
+<pre><code class="remark-code"><div><span style="color: #DDDD00">[warn]</span> match may not be exhaustive.</div><div><span style="color: #DDDD00">[warn]</span> It would fail on the following input: AppFooError(_)</div><div><span style="color: #DDDD00">[warn]</span>     run(c, u) match {</div><div><span style="color: #DDDD00">[warn]</span>         ^</div>
 </code></pre>
+
+???
+
+- Mention `sealed trait` again
 
 ---
 
 ## Warnings as errors
 
 ```scala
-sealed trait LoadError
+sealed trait AppError
 
-case class LoadErrorBar(e: BarNotFound)
-  extends LoadError
+case class AppFooError() extends AppError
 
-load(id) match {
+
+run(c, u) match {
   case Left(e) =>
     e match {
-      case LoadErrorUser(u) => ...
-      case LoadErrorFoo(f) => ...
+      case AppLoginError(InvalidCredentials(_)) => ...
+      case AppUserError(UserNotFound(_)) => ...
     }
 }
 ```
@@ -1108,21 +1205,21 @@ scalacOptions in Compile ++= Seq("-Xfatal-warnings")
 ## Compile errors
 
 ```scala
-sealed trait LoadError
+sealed trait AppError
 
-case class LoadErrorBar(e: BarNotFound)
-  extends LoadError
+case class AppFooError() extends AppError
 
-load(id) match {
+
+run(c, u) match {
   case Left(e) =>
     e match {
-      case LoadErrorUser(u) => ...
-      case LoadErrorFoo(f) => ...
+      case AppLoginError(InvalidCredentials(_)) => ...
+      case AppUserError(UserNotFound(_)) => ...
     }
 }
 ```
 
-<pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: LoadErrorBar(_)</div><div><span style="color: red">[error]</span>     load(id) match {</div><div><span style="color: red">[error]</span>         ^</div>
+<pre><code class="remark-code"><div><span style="color: red">[error]</span> match may not be exhaustive.</div><div><span style="color: red">[error]</span> It would fail on the following input: AppFooError(_)</div><div><span style="color: red">[error]</span>     run(c, u) match {</div><div><span style="color: red">[error]</span>         ^</div>
 </code></pre>
 
 ---
@@ -1136,13 +1233,14 @@ template: question
 ## Previously
 
 ```scala
-case class LoadErrorFoo(e: FooNotFound)
-  extends LoadError
+case class AppUserError(e: UserError)
+  extends AppError
 
-def load(id: Int): Either[LoadError, List[Foo]] =
+def run(a: Auth, u: UserId): Either[AppError, User] =
   for {
-    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
-    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+    s &lt;- login(c).updateError(AppLoginError(_))
+    b &lt;- load(s, u)
+      .updateError(AppUserError(_))
   } yield b
 ```
 
@@ -1150,8 +1248,17 @@ def load(id: Int): Either[LoadError, List[Foo]] =
 
 ## Add context
 
-<pre><code class="scala hljs remark-code"><div class="remark-code-line"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoadErrorFoo</span>(</span>e: <span class="hljs-type">FooNotFound</span>, <span class="red"><span class="red">c:</span> Context</span>)</div><div class="remark-code-line">  <span class="hljs-keyword">extends</span> <span class="hljs-type">LoadError</span></div><div class="remark-code-line"></div><div class="remark-code-line"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(</span>id: <span class="hljs-type">Int</span>, <span class="red"><span class="red">c:</span> Context</span>): <span class="hljs-type">LoadError</span> \/ <span class="hljs-type">List</span>[<span class="hljs-type">Foo</span>] =</div><div class="remark-code-line">  <span class="hljs-keyword">for</span> {</div><div class="remark-code-line">    u &lt;- loadUser(id).updateError(<span class="hljs-type">LoadErrorUser</span>(_))</div><div class="remark-code-line">    b &lt;- loadFoo(u).updateError(<span class="hljs-type">LoadErrorFoo</span>(_, <span class="red"><span class="red">c</span></span>))</div><div class="remark-code-line">  } <span class="hljs-keyword">yield</span> b</div>
-</code></pre>
+```scala
+case class AppUserError(e: UserError, u: Username)
+  extends AppError
+
+def run(a: Auth, u: UserId): Either[AppError, User] =
+  for {
+    s &lt;- login(c).updateError(AppLoginError(_))
+    b &lt;- load(s, u)
+      .updateError(AppUserError(_, a.username))
+  } yield b
+```
 
 ---
 
@@ -1187,8 +1294,10 @@ template: image
 ## So far
 
 ```scala
-def loadUser(id: Int): Either[UserError, User]
-def loadFoo(u: User): Either[FooError, List[Foo]]
+def login(a: Auth): Either[LoginError, Session]
+
+def load(u: Session, u: UserId):
+  Either[UserError, User]
 ```
 
 ---
@@ -1196,8 +1305,10 @@ def loadFoo(u: User): Either[FooError, List[Foo]]
 ## What now?
 
 ```scala
-def loadUser(id: Int): Future[Either[UserError, User]]
-def loadFoo(u: User): Future[Either[FooError, List[Foo]]]
+def login(a: Auth): Future[Either[LoginError, Session]]
+
+def load(u: Session, u: UserId):
+  Future[Either[UserError, User]]
 ```
 
 ---
@@ -1205,17 +1316,21 @@ def loadFoo(u: User): Future[Either[FooError, List[Foo]]]
 ## What now?
 
 ```scala
-def loadUser(id: Int): Future[Either[UserError, User]]
-def loadFoo(u: User): Future[Either[FooError, List[Foo]]]
+def login(a: Auth): Future[Either[LoginError, Session]]
 
-def load(id: Int): Future[Either[LoadError, List[Foo]]] =
+def load(u: Session, u: UserId):
+  Future[Either[UserError, User]]
+
+def run(a: Auth, u: UserId):
+  Future[Either[AppError, User]] =
+
   for {
-    u &lt;- loadUser(id)
-    b &lt;- u match {
+    s &lt;- login(c)
+    b &lt;- s match {
       case Left(e) =>
         Future.ok(e.left)
-      case Right(u2) =>
-        loadFoo(u2)
+      case Right(s2) =>
+        load(s2, u)
     }
   } yield b
 ```
@@ -1257,13 +1372,17 @@ case class FutureE[L, R](run: Future[Either[L, R]]) {
 case class FutureE[L, R](run: Future[Either[L, R]])
 
 
-def loadUser(id: Int): FutureE[UserError, User]
-def loadFoo(u: User): FutureE[FooError, List[Foo]]
+def login(a: Auth): FutureE[LoginError, User]
 
-def load(id: Int): FutureE[LoadError, List[Foo]] =
+def load(Session s, u: UserId):
+  FutureE[UserError, Session]
+
+def run(a: Auth, u: UserId):
+  FutureE[AppError, User] =
+
   for {
-    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
-    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+    s &lt;- login(c).updateError(AppLoginError(_))
+    b &lt;- load(s, u).updateError(AppUserError(_))
   } yield b
 ```
 
@@ -1283,13 +1402,17 @@ case class EitherT[F[_], L, R](run: F[Either[L, R]])
 case class EitherT[F[_], L, R](run: F[Either[L, R]])
 
 
-def loadUser(id: Int): EitherT[Future, UserError, User]
-def loadFoo(u: User): EitherT[Future, FooError, List[Foo]]
+def login(a: Auth): EitherT[Future, LoginError, Session]
 
-def load(id: Int): EitherT[Future, LoadError, List[Foo]] =
+def load(Session s, u: UserId):
+  EitherT[Future, UserError, User]
+
+def run(a: Auth, u: UserId):
+  EitherT[Future, AppError, User] =
+
   for {
-    u &lt;- loadUser(id).updateError(LoadErrorUser(_))
-    b &lt;- loadFoo(u).updateError(LoadErrorFoo(_))
+    s &lt;- login(c).updateError(AppLoginError(_))
+    b &lt;- load(s, u).updateError(AppUserError(_))
   } yield b
 ```
 
