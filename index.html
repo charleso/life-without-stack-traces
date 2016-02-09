@@ -291,6 +291,11 @@ java.lang.NullPointerException
   at com.example.MyController.list(MyController.java:11)
 ```
 
+???
+
+- Exceptions are part of every day life
+  - Especially NPE
+
 ---
 
 <img height="600px" src="https://camo.githubusercontent.com/88444f193d394e1003e4577afcb636e1768263b7/687474703a2f2f692e696d6775722e636f6d2f6a61636f6a2e6a7067" />
@@ -740,12 +745,12 @@ case class Right(r: R) extends Either[Nothing, R]
 
 ```scala
 /**
- * @throws InvalidCredentialsException
+ * @throws InvalidCredentials
  */
 def login(a: Auth): Either[Exception, Session]
 
 /**
- * @throws UserNotFoundException
+ * @throws UserNotFound
  */
 def load(u: Session, u: UserId): Either[Exception, User]
 ```
@@ -756,41 +761,12 @@ def load(u: Session, u: UserId): Either[Exception, User]
 
 ```scala
 /**
- * @throws InvalidCredentialsException
+ * @throws InvalidCredentials
  */
 def login(a: Auth): Either[Exception, Session]
 
 /**
- * @throws UserNotFoundException
- */
-def load(u: Session, u: UserId): Either[Exception, User]
-
-
-def run(a: Auth, u: UserId): Either[Exception, User] =
-  for {
-    s &lt;- login(c).right
-    b &lt;- load(s, u).right
-  } yield b
-```
-
-???
-
-- If `login()` returns an exception, stop
-- If `load()` return an exception, stop
-- etc
-
----
-
-## Either in action (almost)
-
-```scala
-/**
- * @throws InvalidCredentialsException
- */
-def login(a: Auth): Either[Exception, Session]
-
-/**
- * @throws UserNotFoundException
+ * @throws UserNotFound
  */
 def load(u: Session, u: UserId): Either[Exception, User]
 
@@ -801,6 +777,12 @@ def run(a: Auth, u: UserId): Either[Exception, User] =
     b &lt;- load(s, u)
   } yield b
 ```
+
+???
+
+- If `login()` returns an exception, stop
+- If `load()` return an exception, stop
+- etc
 
 ---
 
@@ -832,13 +814,13 @@ template: question
 ```scala
 
 
-
+case class InvalidCredentials(a: Auth) extends Exception
 
 
 
 
 /**
- * @throws InvalidCredentialsException
+ * @throws InvalidCredentials
  */
 def login(a: Auth): Either[Exception, User]
 ```
@@ -873,10 +855,10 @@ def login(a: Auth): Either[LoginError, User]
 
 
 
-
+case class UserNotFound(u: UserId) extends Exception
 
 /**
- * @throws UserNotFoundException
+ * @throws UserNotFound
  */
 def load(u: Session, u: UserId): Either[Exception, User]
 ```
@@ -1291,6 +1273,10 @@ template: image
 
 ## Buckle up
 
+???
+
+- The mechanisms for errors as data is not important
+
 ---
 
 ## So far
@@ -1387,6 +1373,10 @@ def run(a: Auth, u: UserId):
     b &lt;- load(s, u).updateError(AppUserError(_))
   } yield b
 ```
+
+???
+
+BUUUUUUTTT Need to write each combination
 
 ---
 
