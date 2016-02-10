@@ -249,35 +249,28 @@ class: center, middle, inverse
 ---
 
 class: center, middle
-template: image
+template: image-white
 
-# Life Without Stack Traces
+<img src="images/chopsticks.jpg" />
+
+<h1>Life Without Stack Traces <br/>   &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; <span style="color: #4795c6">@charlesofarrell</span></h1>
+
+
+
+
+
+
+
+
+
+
 
 ---
 
 layout: false
 template: image
 
-<img src="images/chopsticks.jpg" />
-
-# Charles O'Farrell
-
-
-
-
-
-
-
-
-
-
-
-
----
-
-template: image
-
-<img src="http://www.cronulla.anglican.asn.au/wp-content/uploads/in-beginning.jpg">
+<img src="images/in-beginning.jpg">
 
 ---
 
@@ -298,7 +291,7 @@ java.lang.NullPointerException
 
 ---
 
-<img height="600px" src="https://camo.githubusercontent.com/88444f193d394e1003e4577afcb636e1768263b7/687474703a2f2f692e696d6775722e636f6d2f6a61636f6a2e6a7067" />
+<img height="600px" src="images/gtfo.jpeg" />
 
 ---
 
@@ -486,19 +479,9 @@ template: question
 
 ---
 
-## NOT [scala.PartialFunction](http://www.scala-lang.org/api/current/index.html#scala.PartialFunction)
-
-```scala
-trait PartialFunction[A, B] extends Function[A, B] {
-  def isDefinedAt(x: A): Boolean
-}
-```
-
----
-
 template: image
 
-<img src="http://3.bp.blogspot.com/-URKZXlSiFeg/UiIyNGa0CCI/AAAAAAAADLQ/nsCrFJ7AAUI/s1600/the-dar-50.jpg" />
+<img src="images/play-game.jpg" />
 
 ---
 
@@ -717,13 +700,13 @@ def bar =
 
 template: image
 
-<img src="http://cdn2-b.examiner.com/sites/default/files/styles/image_content_width/hash/3d/f3/beach-relax_0.jpg" />
+<img src="images/beach-relax.jpg" />
 
 ---
 
 template: image
 
-<img src="https://s3.amazonaws.com/rapgenius/1361797568_f_fa0a8fc348.jpg" />
+<img src="images/image-world.jpg" />
 
 ## Imagine a world without errors
 
@@ -734,9 +717,9 @@ template: image
 ```scala
 sealed trait Either[L, R]
 
-case class Left(l: L) extends Either[L, Nothing]
+case class Left[L](l: L) extends Either[L, Nothing]
 
-case class Right(r: R) extends Either[Nothing, R]
+case class Right[R](r: R) extends Either[Nothing, R]
 ```
 
 ---
@@ -908,21 +891,19 @@ def load(u: Session, u: UserId): Either[UserError, User]
 ## Hmmm
 
 ```scala
-sealed trait LoginError
-
-
-
-
-sealed trait UserError
-
-
-
-
 def run(a: Auth, u: UserId): Either[???, User] =
   for {
     s &lt;- login(c)
     b &lt;- load(s, u)
   } yield b
+
+
+
+
+
+def login(a: Auth): Either[LoginError, User]
+
+def load(u: Session, u: UserId): Either[UserError, User]
 ```
 
 ---
@@ -930,21 +911,21 @@ def run(a: Auth, u: UserId): Either[???, User] =
 ## Back where we started
 
 ```scala
-sealed abstract class LoginError extends Exception
-
-
-
-
-sealed abstract class UserError extends Exception
-
-
-
-
 def run(a: Auth, u: UserId): Either[Exception, User] =
   for {
     s &lt;- login(c)
     b &lt;- load(s, u)
   } yield b
+
+sealed abstract class LoginError extends Exception
+
+sealed abstract class UserError extends Exception
+
+def login(a: Auth): Either[LoginError, User]
+
+def load(u: Session, u: UserId): Either[UserError, User]
+
+
 ```
 
 ---
@@ -989,6 +970,18 @@ case class AppUserError(e: UserError) extends AppError
 
 ---
 
+## Fill in the blanks
+
+```scala
+def run(a: Auth, u: UserId): Either[AppError, User] =
+  for {
+    s &lt;- login(c).???(AppLoginError(_))
+    b &lt;- load(s, u).???(AppUserError(_))
+  } yield b
+```
+
+---
+
 ## Update error
 
 ```scala
@@ -997,6 +990,12 @@ def run(a: Auth, u: UserId): Either[AppError, User] =
     s &lt;- login(c).updateError(AppLoginError(_))
     b &lt;- load(s, u).updateError(AppUserError(_))
   } yield b
+
+
+trait Either[L, R] {
+
+  def updateError[L2](f: L => L2): Either[L2, R] =
+    ...
 ```
 
 ---
@@ -1246,6 +1245,17 @@ def run(a: Auth, u: UserId): Either[AppError, User] =
 
 ---
 
+## Logical stacktrace
+
+```scala
+AppError was returned
+  -> with AppUserError { username: "bob" }
+  -> with UserNotFound { userid: 123 }
+  -> ...
+```
+
+---
+
 ## Errors as data
 
 - Types as documentation
@@ -1269,7 +1279,7 @@ def run(a: Auth, u: UserId): Either[AppError, User] =
 ---
 template: image
 
-<img height="100%" src="http://previews.123rf.com/images/endhals/endhals1105/endhals110500113/9547427-Teddy-Bear-buckled-with-safety-belt-in-a-car-Stock-Photo-seat.jpg" />
+<img height="100%" src="images/buckle-up.jpg" />
 
 ## Buckle up
 
@@ -1462,6 +1472,80 @@ template: question
 - _Designing Fail Fast Error Handling_ by Noel Welsh
   - http://underscore.io/blog/posts/2015/02/23/designing-fail-fast-error-handling.html
 - https://github.com/charleso/life-without-stack-traces
+
+---
+
+template: inverse
+
+# Appendix - Checked Exceptions
+
+---
+
+## Checked exceptions don't compose
+
+```java
+list.map(i => foo(i))
+
+public void foo() throws CheckedException
+```
+
+- Language level feature
+  - Not an abstraction
+
+---
+
+### Option 1 - keep throwing
+
+```java
+public void run() throws LoginError, UserError, ....... {
+  login();
+  load();
+}
+```
+
+---
+
+### Option 2 - single exception
+
+```java
+public User run(Auth auth) throws AppError {
+
+  Session session;
+  try {
+    session = login();
+  } catch (LoginError e) {
+    throw AppError(e)
+  }
+  try {
+    return login(session);
+  } catch (UserError e) {
+    throw AppError(e, session.id)
+  }
+}
+```
+
+---
+
+### Option 2 - no ADT
+
+```java
+public class AppError {
+
+  public LoginError loginError = null;
+  public UserError userError = null;
+  public SessionId sessionId = null;
+
+  public AppError(LoginError loginError) {
+    this.loginError = loginError;
+  }
+
+  public AppError(UserError userError, SessionId sessionId) {
+    this.userUser = userError;
+    this.sessionId = sessionId;
+  }
+}
+```
+
 
     </textarea>
     <link rel="stylesheet" href="js/styles/idea.css">
